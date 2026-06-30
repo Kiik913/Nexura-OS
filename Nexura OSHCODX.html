@@ -1,77 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nexura OS</title>
     <style>
         :root {
-            --accent: #6c5ce7; --accent2: #a29bfe; --bg: #0a0a14;
-            --glass: rgba(20,20,40,0.7); --glass2: rgba(30,30,55,0.75);
-            --text: #e8e8f0; --text2: #b0b0c0; --taskbar: rgba(16,16,32,0.8);
-            --win-title: rgba(18,18,35,0.85); --shadow: 0 8px 40px rgba(0,0,0,0.5);
-            --radius: 14px; --font: 'Segoe UI', system-ui, sans-serif;
+            --accent: #6c5ce7;
+            --accent2: #a29bfe;
+            --bg: #0a0a14;
+            --glass: rgba(20,20,40,0.7);
+            --glass2: rgba(30,30,55,0.75);
+            --text: #e8e8f0;
+            --text2: #b0b0c0;
+            --taskbar: rgba(16,16,32,0.8);
+            --win-title: rgba(18,18,35,0.85);
+            --shadow: 0 8px 40px rgba(0,0,0,0.5);
+            --radius: 14px;
+            --font: 'Segoe UI', system-ui, sans-serif;
             --transition: 0.25s ease;
-            --os-blur: 24px; --os-transparency: 0.75; --os-border-radius: 14px; --os-shadow: 0 8px 40px rgba(0,0,0,0.5);
+            --os-blur: 24px;
+            --os-transparency: 0.75;
+            --os-border-radius: 14px;
+            --os-shadow: 0 8px 40px rgba(0,0,0,0.5);
         }
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:var(--font);background:#000;overflow:hidden;height:100vh;width:100vw;user-select:none;color:var(--text);cursor:url('https://cdn.custom-cursor.com/packs/3686/starter-space-pack.png'),auto}
-        canvas#wallpaperCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
-        #bootScreen{position:fixed;inset:0;z-index:9999;background:#050510;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.8s}
-        #bootScreen.hidden{opacity:0;visibility:hidden;pointer-events:none}
-        .boot-logo{width:90px;height:90px;border-radius:22px;background:linear-gradient(135deg,#6c5ce7,#a29bfe,#fd79a8);display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:900;color:#fff;animation:bootPulse 1.5s infinite;box-shadow:0 0 60px rgba(108,92,231,0.6);margin-bottom:20px}
-        @keyframes bootPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
-        .boot-spinner{width:50px;height:50px;border:3px solid rgba(255,255,255,0.1);border-top-color:#a29bfe;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:16px}
-        @keyframes spin{to{transform:rotate(360deg)}}
-        .boot-info{color:#888;font-size:13px;min-height:20px}.boot-progress{width:220px;height:3px;background:rgba(255,255,255,0.08);border-radius:5px;margin-top:12px;overflow:hidden}
-        .boot-progress-bar{height:100%;background:linear-gradient(90deg,#6c5ce7,#a29bfe);border-radius:5px;width:0%}
-        #lockScreen{position:fixed;inset:0;z-index:8888;background:radial-gradient(ellipse at center,#1a1a3a 0%,#050510 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.6s,transform 0.6s}
-        #lockScreen.hidden{opacity:0;visibility:hidden;pointer-events:none;transform:scale(1.05)}
-        .lock-time{font-size:80px;font-weight:200;color:#fff;text-shadow:0 0 60px rgba(162,155,254,0.5)}.lock-date{font-size:18px;color:#b0b0c8;margin-top:8px}
-        .lock-pin-input{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:8px 12px;color:#fff;font-size:18px;text-align:center;width:120px;margin-top:15px;outline:none;letter-spacing:10px}
-        .lock-error{color:#ff5f57;font-size:12px;margin-top:6px;min-height:18px}
-        #desktop{position:fixed;inset:0;z-index:1;padding:50px 20px 60px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:8px;flex-direction:column}
-        .desktop-icon{width:80px;height:90px;display:flex;flex-direction:column;align-items:center;cursor:pointer;padding:8px;border-radius:10px;transition:var(--transition);z-index:2}
-        .desktop-icon:hover{background:rgba(255,255,255,0.08)}.desktop-icon .icon-img{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:4px}
-        .desktop-icon .icon-label{font-size:11px;color:#e0e0f0;text-shadow:0 1px 4px rgba(0,0,0,0.7)}
-        #taskbar{position:fixed;bottom:0;left:0;right:0;height:50px;z-index:8000;background:var(--taskbar);backdrop-filter:blur(30px);display:flex;align-items:center;justify-content:center;border-top:1px solid rgba(255,255,255,0.08);gap:4px;padding:0 12px}
-        .taskbar-item{height:38px;min-width:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;font-size:20px;padding:0 10px;gap:6px;color:#d0d0e0;background:transparent;border:none}
-        .taskbar-item:hover{background:rgba(255,255,255,0.1)}.taskbar-item.active{background:rgba(255,255,255,0.12)}
-        .taskbar-item .indicator{position:absolute;bottom:2px;width:6px;height:3px;background:var(--accent2);border-radius:3px}.taskbar-item.active .indicator{width:20px;background:var(--accent)}
-        .taskbar-right{position:absolute;right:10px;display:flex;align-items:center;gap:6px}.tb-time{font-size:11px;color:#c0c0d8;text-align:right;line-height:1.3;cursor:pointer;padding:4px 8px;border-radius:6px}
-        .tb-btn{width:34px;height:34px;border-radius:8px;background:transparent;border:none;color:#d0d0e0;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
-        #startMenu{position:fixed;bottom:60px;left:50%;transform:translateX(-50%) translateY(20px);z-index:8500;width:560px;max-width:95vw;background:var(--glass2);backdrop-filter:blur(40px);border-radius:16px;border:1px solid rgba(255,255,255,0.12);box-shadow:var(--shadow);padding:20px;display:flex;flex-direction:column;gap:16px;opacity:0;visibility:hidden;pointer-events:none;transition:0.3s ease}
-        #startMenu.open{opacity:1;visibility:visible;pointer-events:all;transform:translateX(-50%) translateY(0)}
-        .start-search{width:100%;padding:10px 16px;border-radius:20px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.06);color:#fff;font-size:14px;outline:none}
-        .start-pinned{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}.start-pin-item{aspect-ratio:1;border-radius:12px;background:rgba(255,255,255,0.05);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:24px;gap:2px;border:1px solid transparent}.start-pin-item:hover{background:rgba(255,255,255,0.12)}.start-pin-item span{font-size:10px;color:#c0c0d8}
-        .start-power{display:flex;gap:8px;justify-content:flex-end}.start-power button{padding:8px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.04);color:#d0d0e0;cursor:pointer;font-size:12px}.shutdown-btn{background:rgba(255,70,70,0.2);border-color:rgba(255,70,70,0.4);color:#ff6b6b}
-        .os-window{position:absolute;min-width:300px;min-height:200px;background:rgba(30,30,55,var(--os-transparency));backdrop-filter:blur(var(--os-blur));border-radius:var(--os-border-radius);border:1px solid rgba(255,255,255,0.15);box-shadow:var(--os-shadow);display:flex;flex-direction:column;z-index:100;overflow:hidden;animation:windowOpen 0.3s ease}
-        @keyframes windowOpen{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
-        .os-window.maximized{top:0!important;left:0!important;width:100vw!important;height:calc(100vh - 50px)!important;border-radius:0!important}
-        .os-window.closing{animation:windowClose 0.25s ease forwards}@keyframes windowClose{to{opacity:0;transform:scale(0.85)}}
-        .win-titlebar{height:38px;background:var(--win-title);display:flex;align-items:center;padding:0 10px;cursor:grab;gap:8px;border-bottom:1px solid rgba(255,255,255,0.06)}
-        .win-title{flex:1;font-size:12px;font-weight:500;color:#c8c8dc;text-align:center}.win-btn{width:13px;height:13px;border-radius:50%;cursor:pointer;border:none}
-        .win-btn.close{background:#ff5f57}.win-btn.minimize{background:#ffbd2e}.win-btn.maximize{background:#28c840}.win-btn:hover{filter:brightness(1.3);transform:scale(1.15)}
-        .win-content{flex:1;overflow:auto;padding:16px;position:relative}
-        #notificationCenter{position:fixed;right:10px;top:60px;z-index:9000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
-        .toast{background:var(--glass2);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:12px 18px;color:#e0e0f0;font-size:13px;animation:toastIn 0.4s ease,toastOut 0.3s ease 2.5s forwards;pointer-events:all;box-shadow:var(--shadow);max-width:340px}
-        @keyframes toastIn{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)}}@keyframes toastOut{to{opacity:0;transform:translateX(60px)}}
-        #quickSettings{position:fixed;right:10px;bottom:60px;z-index:8600;background:var(--glass2);backdrop-filter:blur(30px);border-radius:16px;border:1px solid rgba(255,255,255,0.12);padding:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;opacity:0;visibility:hidden;pointer-events:none;transition:0.3s ease;box-shadow:var(--shadow);transform:translateY(10px)}
-        #quickSettings.open{opacity:1;visibility:visible;pointer-events:all;transform:translateY(0)}
-        .qs-btn{width:60px;height:60px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#e0e0f0;cursor:pointer;font-size:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}.qs-btn span{font-size:9px}
-        #contextMenu{position:fixed;z-index:9500;background:var(--glass2);border-radius:12px;border:1px solid rgba(255,255,255,0.15);padding:6px;min-width:180px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity 0.15s;box-shadow:var(--shadow)}
-        #contextMenu.open{opacity:1;visibility:visible;pointer-events:all}.ctx-item{padding:9px 16px;cursor:pointer;border-radius:8px;font-size:13px;display:flex;align-items:center;gap:8px;color:#d0d0e0}
-        ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:10px}
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:var(--font); background:#000; overflow:hidden; height:100vh; width:100vw; user-select:none; color:var(--text); cursor:url('https://cdn.custom-cursor.com/packs/3686/starter-space-pack.png'), auto; }
+        canvas#wallpaperCanvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+        #bootScreen { position:fixed; inset:0; z-index:9999; background:#050510; display:flex; flex-direction:column; align-items:center; justify-content:center; transition:opacity 0.8s; }
+        #bootScreen.hidden { opacity:0; visibility:hidden; pointer-events:none; }
+        .boot-logo { width:90px; height:90px; border-radius:22px; background:linear-gradient(135deg,#6c5ce7,#a29bfe,#fd79a8); display:flex; align-items:center; justify-content:center; font-size:40px; font-weight:900; color:#fff; animation:bootPulse 1.5s infinite; box-shadow:0 0 60px rgba(108,92,231,0.6); margin-bottom:20px; }
+        @keyframes bootPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+        .boot-spinner { width:50px; height:50px; border:3px solid rgba(255,255,255,0.1); border-top-color:#a29bfe; border-radius:50%; animation:spin 0.8s linear infinite; margin-bottom:16px; }
+        @keyframes spin { to{transform:rotate(360deg)} }
+        .boot-info { color:#888; font-size:13px; min-height:20px; }
+        .boot-progress { width:220px; height:3px; background:rgba(255,255,255,0.08); border-radius:5px; margin-top:12px; overflow:hidden; }
+        .boot-progress-bar { height:100%; background:linear-gradient(90deg,#6c5ce7,#a29bfe); border-radius:5px; width:0%; }
+
+        /* Lock screen */
+        #lockScreen {
+            position:fixed; inset:0; z-index:8888;
+            background: rgba(10,10,20,0.45);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            transition:opacity 0.5s,transform 0.5s;
+        }
+        #lockScreen.hidden { opacity:0; visibility:hidden; pointer-events:none; transform:translateY(-30px); }
+        .lock-particles { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0; }
+        .lock-particle { position:absolute; border-radius:50%; background:var(--accent2); opacity:0.1; animation:floatLock 8s infinite ease-in-out; }
+        @keyframes floatLock {
+            0%{transform:translateY(0) translateX(0) scale(1); opacity:0.05;}
+            50%{opacity:0.25; transform:translateY(-30px) translateX(10px) scale(1.4);}
+            100%{transform:translateY(0) translateX(0) scale(1); opacity:0.05;}
+        }
+        .lock-container { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:16px; }
+        .lock-avatar { width:90px; height:90px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; box-shadow:0 0 30px rgba(108,92,231,0.5); }
+        .lock-avatar-img { font-size:36px; font-weight:700; color:#fff; text-shadow:0 2px 8px rgba(0,0,0,0.4); }
+        .lock-brand { font-size:14px; letter-spacing:6px; text-transform:uppercase; color:var(--accent2); margin-bottom:4px; font-weight:300; }
+        .lock-user { font-size:18px; color:#d0d0e0; margin-top:-8px; }
+        .lock-time { font-size:88px; font-weight:200; color:#fff; text-shadow:0 0 60px rgba(162,155,254,0.5); line-height:1; }
+        .lock-date { font-size:18px; color:#b0b0c8; margin-top:-8px; font-weight:300; }
+        .lock-pin-container { display:flex; align-items:center; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); border-radius:14px; padding:6px 14px; gap:8px; margin-top:8px; backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); }
+        .lock-icon { font-size:20px; color:var(--accent2); }
+        .lock-pin-input { background:transparent; border:none; color:#fff; font-size:22px; text-align:center; width:140px; outline:none; letter-spacing:12px; font-family:monospace; }
+        .lock-pin-input::placeholder { color:rgba(255,255,255,0.35); letter-spacing:4px; font-size:16px; font-family:var(--font); }
+        .lock-error { color:#ff5f57; font-size:13px; min-height:20px; margin-top:-6px; }
+        .lock-hint { font-size:12px; color:rgba(255,255,255,0.35); margin-top:-10px; }
+
+        #desktop { position:fixed; inset:0; z-index:1; padding:50px 20px 60px; display:flex; flex-wrap:wrap; align-content:flex-start; gap:8px; flex-direction:column; }
+        .desktop-icon { width:80px; height:90px; display:flex; flex-direction:column; align-items:center; cursor:pointer; padding:8px; border-radius:10px; transition:var(--transition); z-index:2; }
+        .desktop-icon:hover { background:rgba(255,255,255,0.08); }
+        .desktop-icon .icon-img { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:26px; margin-bottom:4px; }
+        .desktop-icon .icon-label { font-size:11px; color:#e0e0f0; text-shadow:0 1px 4px rgba(0,0,0,0.7); }
+
+        #taskbar { position:fixed; bottom:0; left:0; right:0; height:50px; z-index:8000; background:var(--taskbar); backdrop-filter:blur(30px); display:flex; align-items:center; justify-content:center; border-top:1px solid rgba(255,255,255,0.08); gap:4px; padding:0 12px; }
+        .taskbar-item { height:38px; min-width:38px; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative; font-size:20px; padding:0 10px; gap:6px; color:#d0d0e0; background:transparent; border:none; }
+        .taskbar-item:hover { background:rgba(255,255,255,0.1); }
+        .taskbar-item.active { background:rgba(255,255,255,0.12); }
+        .taskbar-item .indicator { position:absolute; bottom:2px; width:6px; height:3px; background:var(--accent2); border-radius:3px; }
+        .taskbar-item.active .indicator { width:20px; background:var(--accent); }
+        .taskbar-right { position:absolute; right:10px; display:flex; align-items:center; gap:6px; }
+        .tb-time { font-size:11px; color:#c0c0d8; text-align:right; line-height:1.3; cursor:pointer; padding:4px 8px; border-radius:6px; }
+        .tb-btn { width:34px; height:34px; border-radius:8px; background:transparent; border:none; color:#d0d0e0; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; }
+
+        #startMenu { position:fixed; bottom:60px; left:50%; transform:translateX(-50%) translateY(20px); z-index:8500; width:560px; max-width:95vw; background:var(--glass2); backdrop-filter:blur(40px); border-radius:16px; border:1px solid rgba(255,255,255,0.12); box-shadow:var(--shadow); padding:20px; display:flex; flex-direction:column; gap:16px; opacity:0; visibility:hidden; pointer-events:none; transition:0.3s ease; }
+        #startMenu.open { opacity:1; visibility:visible; pointer-events:all; transform:translateX(-50%) translateY(0); }
+        .start-search { width:100%; padding:10px 16px; border-radius:20px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.06); color:#fff; font-size:14px; outline:none; }
+        .start-pinned { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
+        .start-pin-item { aspect-ratio:1; border-radius:12px; background:rgba(255,255,255,0.05); display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; font-size:24px; gap:2px; border:1px solid transparent; }
+        .start-pin-item:hover { background:rgba(255,255,255,0.12); }
+        .start-pin-item span { font-size:10px; color:#c0c0d8; }
+        .start-power { display:flex; gap:8px; justify-content:flex-end; }
+        .start-power button { padding:8px 16px; border-radius:8px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.04); color:#d0d0e0; cursor:pointer; font-size:12px; }
+        .shutdown-btn { background:rgba(255,70,70,0.2); border-color:rgba(255,70,70,0.4); color:#ff6b6b; }
+
+        .os-window { position:absolute; min-width:300px; min-height:200px; background:rgba(30,30,55,var(--os-transparency)); backdrop-filter:blur(var(--os-blur)); border-radius:var(--os-border-radius); border:1px solid rgba(255,255,255,0.15); box-shadow:var(--os-shadow); display:flex; flex-direction:column; z-index:100; overflow:hidden; animation:windowOpen 0.3s ease; }
+        @keyframes windowOpen { from{opacity:0; transform:scale(0.9)} to{opacity:1; transform:scale(1)} }
+        .os-window.maximized { top:0!important; left:0!important; width:100vw!important; height:calc(100vh - 50px)!important; border-radius:0!important; }
+        .os-window.closing { animation:windowClose 0.25s ease forwards; }
+        @keyframes windowClose { to{opacity:0; transform:scale(0.85)} }
+        .win-titlebar { height:38px; background:var(--win-title); display:flex; align-items:center; padding:0 10px; cursor:grab; gap:8px; border-bottom:1px solid rgba(255,255,255,0.06); }
+        .win-title { flex:1; font-size:12px; font-weight:500; color:#c8c8dc; text-align:center; }
+        .win-btn { width:13px; height:13px; border-radius:50%; cursor:pointer; border:none; }
+        .win-btn.close { background:#ff5f57; }
+        .win-btn.minimize { background:#ffbd2e; }
+        .win-btn.maximize { background:#28c840; }
+        .win-btn:hover { filter:brightness(1.3); transform:scale(1.15); }
+        .win-content { flex:1; overflow:auto; padding:16px; position:relative; }
+
+        #notificationCenter { position:fixed; right:10px; top:60px; z-index:9000; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
+        .toast { background:var(--glass2); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:12px 18px; color:#e0e0f0; font-size:13px; animation:toastIn 0.4s ease,toastOut 0.3s ease 2.5s forwards; pointer-events:all; box-shadow:var(--shadow); max-width:340px; }
+        @keyframes toastIn { from{opacity:0; transform:translateX(60px)} to{opacity:1; transform:translateX(0)} }
+        @keyframes toastOut { to{opacity:0; transform:translateX(60px)} }
+
+        #quickSettings { position:fixed; right:10px; bottom:60px; z-index:8600; background:var(--glass2); backdrop-filter:blur(30px); border-radius:16px; border:1px solid rgba(255,255,255,0.12); padding:16px; display:grid; grid-template-columns:repeat(3,1fr); gap:8px; opacity:0; visibility:hidden; pointer-events:none; transition:0.3s ease; box-shadow:var(--shadow); transform:translateY(10px); }
+        #quickSettings.open { opacity:1; visibility:visible; pointer-events:all; transform:translateY(0); }
+        .qs-btn { width:60px; height:60px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#e0e0f0; cursor:pointer; font-size:20px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; }
+        .qs-btn span { font-size:9px; }
+
+        #contextMenu { position:fixed; z-index:9500; background:var(--glass2); border-radius:12px; border:1px solid rgba(255,255,255,0.15); padding:6px; min-width:180px; opacity:0; visibility:hidden; pointer-events:none; transition:opacity 0.15s; box-shadow:var(--shadow); }
+        #contextMenu.open { opacity:1; visibility:visible; pointer-events:all; }
+        .ctx-item { padding:9px 16px; cursor:pointer; border-radius:8px; font-size:13px; display:flex; align-items:center; gap:8px; color:#d0d0e0; }
+
+        ::-webkit-scrollbar { width:5px; height:5px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.2); border-radius:10px; }
     </style>
 </head>
 <body>
 <div id="bootScreen"><div class="boot-logo">N</div><div class="boot-spinner"></div><div class="boot-info" id="bootInfo">Initializing...</div><div class="boot-progress"><div class="boot-progress-bar" id="bootProgressBar"></div></div></div>
-<div id="lockScreen" class="hidden"><div class="lock-time" id="lockTime">00:00</div><div class="lock-date" id="lockDate">...</div><input type="password" class="lock-pin-input" id="pinInput" placeholder="PIN" maxlength="6"><div class="lock-error" id="lockError"></div></div>
-<div id="desktop"></div><canvas id="wallpaperCanvas"></canvas>
-<div id="taskbar"><button class="taskbar-item" id="startBtn">🟣</button><div style="flex:1;display:flex;gap:3px;justify-content:center;" id="taskbarApps"></div><div class="taskbar-right"><button class="tb-btn" id="qsToggle">⚡</button><div class="tb-time" id="taskbarTime">00:00<br><small>...</small></div></div></div>
-<div id="startMenu"><input class="start-search" placeholder="🔍 Search..." id="startSearch"><div class="start-pinned" id="startPinned"></div><div class="start-power"><button onclick="NexuraOS.lock()">🔒 Lock</button><button onclick="NexuraOS.restart()">🔄 Restart</button><button class="shutdown-btn" onclick="NexuraOS.shutdown()">⏻ Shutdown</button></div></div>
-<div id="quickSettings"><button class="qs-btn" onclick="NexuraOS.toggleWiFi()">📶<span>WiFi</span></button><button class="qs-btn" onclick="NexuraOS.toggleBluetooth()">🔵<span>BT</span></button><button class="qs-btn" onclick="NexuraOS.toggleDarkMode()">🌓<span>Theme</span></button><button class="qs-btn" onclick="NexuraOS.openApp('settings')">⚙️<span>Settings</span></button><button class="qs-btn" onclick="NexuraOS.toggleFocus()">🎯<span>Focus</span></button><button class="qs-btn" onclick="NexuraOS.showNotification('Nexura','All good!')">🔔<span>Info</span></button></div>
-<div id="contextMenu"></div><div id="notificationCenter"></div>
+
+<div id="lockScreen" class="hidden">
+    <div class="lock-particles" id="lockParticles"></div>
+    <div class="lock-container">
+        <div class="lock-avatar"><div class="lock-avatar-img">NK</div></div>
+        <div class="lock-brand">Nexura OS</div>
+        <div class="lock-user" id="lockUserName">Welcome back</div>
+        <div class="lock-time" id="lockTime">00:00</div>
+        <div class="lock-date" id="lockDate">...</div>
+        <div class="lock-pin-container">
+            <span class="lock-icon">🔒</span>
+            <input type="password" class="lock-pin-input" id="pinInput" placeholder="PIN" maxlength="6">
+        </div>
+        <div class="lock-error" id="lockError"></div>
+        <div class="lock-hint">Press Enter to unlock</div>
+    </div>
+</div>
+
+<div id="desktop"></div>
+<canvas id="wallpaperCanvas"></canvas>
+
+<div id="taskbar">
+    <button class="taskbar-item" id="startBtn">🟣</button>
+    <div style="flex:1;display:flex;gap:3px;justify-content:center;" id="taskbarApps"></div>
+    <div class="taskbar-right">
+        <button class="tb-btn" id="qsToggle">⚡</button>
+        <div class="tb-time" id="taskbarTime">00:00<br><small>...</small></div>
+    </div>
+</div>
+
+<div id="startMenu">
+    <input class="start-search" placeholder="🔍 Search..." id="startSearch">
+    <div class="start-pinned" id="startPinned"></div>
+    <div class="start-power">
+        <button onclick="NexuraOS.lock()">🔒 Lock</button>
+        <button onclick="NexuraOS.restart()">🔄 Restart</button>
+        <button class="shutdown-btn" onclick="NexuraOS.shutdown()">⏻ Shutdown</button>
+    </div>
+</div>
+
+<div id="quickSettings">
+    <button class="qs-btn" onclick="NexuraOS.toggleWiFi()">📶<span>WiFi</span></button>
+    <button class="qs-btn" onclick="NexuraOS.toggleBluetooth()">🔵<span>BT</span></button>
+    <button class="qs-btn" onclick="NexuraOS.toggleDarkMode()">🌓<span>Theme</span></button>
+    <button class="qs-btn" onclick="NexuraOS.openApp('settings')">⚙️<span>Settings</span></button>
+    <button class="qs-btn" onclick="NexuraOS.toggleFocus()">🎯<span>Focus</span></button>
+    <button class="qs-btn" onclick="NexuraOS.showNotification('Nexura','All good!')">🔔<span>Info</span></button>
+</div>
+
+<div id="contextMenu"></div>
+<div id="notificationCenter"></div>
 
 <script>
 const PRESET_BG = [
@@ -117,83 +226,1176 @@ metronome|Metronome|🎼|#app_metronome
 flip_coin|Flip a Coin|🪙|#app_coin
 spinner|Spinner|🎰|#app_spinner`;
 
-function parseApps() { return APPS_RAW.trim().split('\n').map(l=>{const p=l.split('|');return{id:p[0],name:p[1],icon:p[2],url:p[3]};}); }
+function parseApps() {
+    return APPS_RAW.trim().split('\n').map(l => {
+        const p = l.split('|');
+        return { id: p[0], name: p[1], icon: p[2], url: p[3] };
+    });
+}
 
-(function(){
-const STORE_APPS = parseApps();
-const NexuraOS = {
-    version:'24.0.0',build:'2026-NEX-024',isLocked:true,isBooted:false,windows:[],windowZIndex:100,activeWindowId:null,
-    pinnedApps:['browser','files','terminal','calculator','settings','notes','music','paint','codeeditor','weather','store','games'],
-    wifiOn:true,bluetoothOn:true,darkMode:true,focusMode:false,
-    wallpaperHue:260,wallpaperType:'gradient',backgroundImage:null,
-    settingsStore:{blurAmount:24,transparency:75,borderRadius:14,shadowIntensity:40,iconSize:48,showLabels:true,autoHide:false,taskbarTransparency:80,lockBlur:10},
-    installedStoreApps:[],activeGames:{},userPIN:'1234',history:[],
-    init(){this.loadSettings();this.setupBoot();this.setupWallpaper();this.setupDesktopIcons();this.setupStartMenu();this.setupTaskbarClock();this.setupEventListeners();this.setupContextMenu();document.getElementById('pinInput').addEventListener('keydown',e=>{if(e.key==='Enter')this.checkPIN();});this.applySettings();},
-    applySettings(){const s=this.settingsStore;document.documentElement.style.setProperty('--os-blur',s.blurAmount+'px');document.documentElement.style.setProperty('--os-transparency',(s.transparency/100).toFixed(2));document.documentElement.style.setProperty('--os-border-radius',s.borderRadius+'px');document.documentElement.style.setProperty('--os-shadow',`0 8px ${s.shadowIntensity}px rgba(0,0,0,0.5)`);this.windows.forEach(w=>{const el=document.getElementById(w.id);if(el){el.style.background=`rgba(30,30,55,${(s.transparency/100).toFixed(2)})`;el.style.backdropFilter=`blur(${s.blurAmount}px)`;el.style.borderRadius=s.borderRadius+'px';el.style.boxShadow=`0 8px ${s.shadowIntensity}px rgba(0,0,0,0.5)`;}});const tb=document.getElementById('taskbar');if(tb){tb.style.background=s.autoHide?'transparent':`rgba(16,16,32,${(s.taskbarTransparency/100).toFixed(2)})`;tb.style.height=s.autoHide?'0px':'50px';}document.querySelectorAll('.desktop-icon').forEach(icon=>{const img=icon.querySelector('.icon-img');if(img){img.style.width=s.iconSize+'px';img.style.height=s.iconSize+'px';img.style.fontSize=(s.iconSize*0.54)+'px';}const lbl=icon.querySelector('.icon-label');if(lbl)lbl.style.display=s.showLabels?'block':'none';});this.setupWallpaper();},
-    setupBoot(){const steps=['Kernel...','Drivers...','Integrity...','Display...','Security...','Environment...','Services...','Desktop...','Welcome! ✨'];const bar=document.getElementById('bootProgressBar'),info=document.getElementById('bootInfo');let step=0;const interval=setInterval(()=>{if(step<steps.length){info.textContent=steps[step];bar.style.width=((step+1)/steps.length*100)+'%';step++;}else{clearInterval(interval);setTimeout(()=>{document.getElementById('bootScreen').classList.add('hidden');this.isBooted=true;this.showLockScreen();},600);}},300);},
-    setupWallpaper(){const canvas=document.getElementById('wallpaperCanvas'),ctx=canvas.getContext('2d');const resize=()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;};resize();window.removeEventListener('resize',resize);window.addEventListener('resize',resize);const img=new Image();img.crossOrigin='anonymous';if(this.backgroundImage)img.src=this.backgroundImage;const draw=()=>{if(img.complete&&img.naturalWidth>0&&this.backgroundImage){ctx.clearRect(0,0,canvas.width,canvas.height);const scale=Math.max(canvas.width/img.width,canvas.height/img.height);const w=img.width*scale,h=img.height*scale;const x=(canvas.width-w)/2,y=(canvas.height-h)/2;ctx.drawImage(img,x,y,w,h);}else if(this.wallpaperType==='gradient'){const grad=ctx.createRadialGradient(canvas.width*0.3,canvas.height*0.4,50,canvas.width*0.7,canvas.height*0.6,canvas.width*0.9);grad.addColorStop(0,`hsl(${this.wallpaperHue},60%,18%)`);grad.addColorStop(0.5,`hsl(${(this.wallpaperHue+40)%360},50%,10%)`);grad.addColorStop(1,`hsl(${(this.wallpaperHue+80)%360},40%,4%)`);ctx.fillStyle=grad;ctx.fillRect(0,0,canvas.width,canvas.height);}else if(this.wallpaperType==='particles'){ctx.fillStyle='#0a0a14';ctx.fillRect(0,0,canvas.width,canvas.height);for(let i=0;i<120;i++){const seed=i*137.5;const px=(seed*31.7)%canvas.width;const py=(seed*73.1)%canvas.height;ctx.fillStyle=`hsla(${this.wallpaperHue},70%,70%,${0.1+0.05*Math.sin(Date.now()/3000+i)})`;ctx.beginPath();ctx.arc(px,py,1.5,0,Math.PI*2);ctx.fill();}}else{ctx.fillStyle=`hsl(${this.wallpaperHue},30%,10%)`;ctx.fillRect(0,0,canvas.width,canvas.height);}requestAnimationFrame(draw);};if(img.src)img.onload=()=>requestAnimationFrame(draw);else requestAnimationFrame(draw);},
-    showLockScreen(){document.getElementById('lockScreen').classList.remove('hidden');this.isLocked=true;this.updateLockClock();setInterval(()=>this.updateLockClock(),1000);},
-    updateLockClock(){const now=new Date();document.getElementById('lockTime').textContent=now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false});document.getElementById('lockDate').textContent=now.toLocaleDateString([],{weekday:'long',day:'numeric',month:'long'});document.getElementById('taskbarTime').innerHTML=`${now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}<br><small>${now.toLocaleDateString([],{day:'numeric',month:'short'})}</small>`;},
-    checkPIN(){const pin=document.getElementById('pinInput').value;if(pin===this.userPIN)this.unlock();else{document.getElementById('lockError').textContent='Incorrect PIN';}},
-    unlock(){if(!this.isLocked)return;document.getElementById('lockScreen').classList.add('hidden');this.isLocked=false;this.showDesktop();document.getElementById('desktop').style.display='flex';},
-    lock(){if(this.isLocked)return;this.isLocked=true;this.closeAllWindows();document.getElementById('desktop').style.display='none';this.showLockScreen();},
-    restart(){this.closeAllWindows();document.getElementById('desktop').style.display='none';document.getElementById('bootScreen').classList.remove('hidden');document.getElementById('lockScreen').classList.add('hidden');document.getElementById('bootProgressBar').style.width='0%';this.isBooted=false;this.isLocked=true;setTimeout(()=>this.setupBoot(),400);},
-    shutdown(){document.body.style.transition='opacity 0.8s';document.body.style.opacity='0';setTimeout(()=>{document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#fff;font-size:24px;background:#000;">Nexura OS shut down.</div>';document.body.style.opacity='1';},800);},
-    showDesktop(){document.getElementById('desktop').style.display='flex';this.renderDesktopIcons();},
-    setupDesktopIcons(){this.desktopIcons=[{id:'browser',name:'Aura Browser',icon:'🌐',color:'#3498db'},{id:'files',name:'Files',icon:'📁',color:'#f39c12'},{id:'terminal',name:'Terminal',icon:'⬛',color:'#2d3436'},{id:'calculator',name:'Calculator',icon:'🔢',color:'#636e72'},{id:'settings',name:'Settings',icon:'⚙️',color:'#7f8c8d'},{id:'notes',name:'Notes',icon:'📝',color:'#fdcb6e'},{id:'music',name:'Music',icon:'🎵',color:'#e84393'},{id:'store',name:'App Store',icon:'🛍️',color:'#00cec9'},{id:'games',name:'Games',icon:'🎮',color:'#e74c3c'},{id:'paint',name:'Nexura Paint',icon:'🎨',color:'#fd79a8'},{id:'codeeditor',name:'Code Editor',icon:'💻',color:'#6c5ce7'},{id:'weather',name:'Weather',icon:'🌤️',color:'#74b9ff'}];},
-    renderDesktopIcons(){const d=document.getElementById('desktop');d.innerHTML='';const all=[...this.desktopIcons];const storeMap={};STORE_APPS.forEach(a=>storeMap[a.id]=a.name);this.installedStoreApps.forEach(id=>{all.push({id,name:storeMap[id]||id,icon:'📦',color:'#555'});});all.forEach(a=>{const div=document.createElement('div');div.className='desktop-icon';div.innerHTML=`<div class="icon-img" style="background:${a.color};color:#fff;">${a.icon}</div><div class="icon-label">${a.name}</div>`;div.addEventListener('dblclick',()=>this.openApp(a.id));div.addEventListener('contextmenu',e=>{e.preventDefault();if(a.icon==='📦'&&this.installedStoreApps.includes(a.id)){this.uninstallStoreApp(a.id);this.showNotification('Store',`${a.name} uninstalled`);}});d.appendChild(div);});},
-    setupStartMenu(){const pc=document.getElementById('startPinned');pc.innerHTML='';this.pinnedApps.forEach(id=>{const a=this.desktopIcons.find(d=>d.id===id)||{id,name:id,icon:'📦',color:'#555'};const div=document.createElement('div');div.className='start-pin-item';div.innerHTML=`${a.icon}<span>${a.name}</span>`;div.addEventListener('click',()=>{this.openApp(id);this.toggleStartMenu(false);});pc.appendChild(div);});},
-    toggleStartMenu(f){const m=document.getElementById('startMenu');const o=typeof f==='boolean'?f:!m.classList.contains('open');if(o){m.classList.add('open');document.getElementById('quickSettings').classList.remove('open');}else m.classList.remove('open');},
-    openApp(id){if(this.isLocked)return;const ew=this.windows.find(w=>w.appId===id&&!w.minimized);if(ew){this.focusWindow(ew.id);return;}const app=this.getAppDefinition(id);if(!app)return;const wid='w'+Date.now();const w={id:wid,appId:id,title:app.title,icon:app.icon,x:80+Math.random()*200,y:50+Math.random()*100,width:app.defaultWidth||700,height:app.defaultHeight||480,minimized:false,maximized:false,zIndex:++this.windowZIndex};this.windows.push(w);this.renderWindow(w);this.updateTaskbar();this.focusWindow(wid);if(app.onOpen)app.onOpen(w);},
-    getAppDefinition(id){const defs={browser:{title:'Aura Browser',icon:'🌐',defaultWidth:900,defaultHeight:600,onOpen:w=>this.setupBrowserApp(w)},files:{title:'Files',icon:'📁',defaultWidth:750,defaultHeight:500,onOpen:w=>this.setupFilesApp(w)},terminal:{title:'Terminal',icon:'⬛',defaultWidth:650,defaultHeight:420,onOpen:w=>this.setupTerminalApp(w)},calculator:{title:'Calculator',icon:'🔢',defaultWidth:320,defaultHeight:420,onOpen:w=>this.setupCalculatorApp(w)},settings:{title:'Settings',icon:'⚙️',defaultWidth:800,defaultHeight:550,onOpen:w=>this.setupSettingsApp(w)},notes:{title:'Notes',icon:'📝',defaultWidth:400,defaultHeight:400,onOpen:w=>this.setupNotesApp(w)},music:{title:'Music',icon:'🎵',defaultWidth:600,defaultHeight:450,onOpen:w=>this.setupMusicApp(w)},paint:{title:'Nexura Paint',icon:'🎨',defaultWidth:750,defaultHeight:500,onOpen:w=>this.setupPaintApp(w)},codeeditor:{title:'Code Editor',icon:'💻',defaultWidth:700,defaultHeight:500,onOpen:w=>this.setupCodeEditorApp(w)},weather:{title:'Weather',icon:'🌤️',defaultWidth:400,defaultHeight:450,onOpen:w=>this.setupWeatherApp(w)},store:{title:'App Store',icon:'🛍️',defaultWidth:800,defaultHeight:550,onOpen:w=>this.setupStoreApp(w)},games:{title:'Game Launcher',icon:'🎮',defaultWidth:650,defaultHeight:480,onOpen:w=>this.setupGamesApp(w)},tic_tac_toe:{title:'Tic Tac Toe',icon:'🎮',defaultWidth:350,defaultHeight:400,onOpen:w=>this.setupTicTacToe(w)},color_picker:{title:'Color Picker',icon:'🎨',defaultWidth:350,defaultHeight:300,onOpen:w=>this.setupColorPicker(w)},tuner:{title:'Tuner',icon:'🎵',defaultWidth:350,defaultHeight:200,onOpen:w=>this.setupTuner(w)},roll_dice:{title:'Roll a Dice',icon:'🎲',defaultWidth:300,defaultHeight:250,onOpen:w=>this.setupDice(w)},meditate:{title:'Meditate',icon:'🧘',defaultWidth:350,defaultHeight:250,onOpen:w=>this.setupMeditate(w)},metronome:{title:'Metronome',icon:'🎼',defaultWidth:350,defaultHeight:200,onOpen:w=>this.setupMetronome(w)},flip_coin:{title:'Flip a Coin',icon:'🪙',defaultWidth:300,defaultHeight:250,onOpen:w=>this.setupCoinFlip(w)},spinner:{title:'Spinner',icon:'🎰',defaultWidth:350,defaultHeight:300,onOpen:w=>this.setupSpinner(w)}};if(defs[id])return defs[id];const storeApp=STORE_APPS.find(a=>a.id===id);const title=storeApp?storeApp.name:id;return{title,icon:'📦',defaultWidth:600,defaultHeight:400,onOpen:w=>this.setupGenericApp(w,id)};},
-    renderWindow(w){const ex=document.getElementById(w.id);if(ex)ex.remove();const el=document.createElement('div');el.className='os-window';el.id=w.id;el.style.left=w.x+'px';el.style.top=w.y+'px';el.style.width=w.width+'px';el.style.height=w.height+'px';el.style.zIndex=w.zIndex;if(w.maximized)el.classList.add('maximized');el.innerHTML=`<div class="win-titlebar"><button class="win-btn close" data-action="close"></button><button class="win-btn minimize" data-action="minimize"></button><button class="win-btn maximize" data-action="maximize"></button><span class="win-title">${w.icon} ${w.title}</span></div><div class="win-content" id="content_${w.id}"></div>`;document.body.appendChild(el);el.querySelector('.win-btn.close').addEventListener('click',()=>this.closeWindow(w.id));el.querySelector('.win-btn.minimize').addEventListener('click',()=>this.minimizeWindow(w.id));el.querySelector('.win-btn.maximize').addEventListener('click',()=>this.maximizeWindow(w.id));let dragData=null;el.querySelector('.win-titlebar').addEventListener('mousedown',(e)=>{if(e.target.classList.contains('win-btn')||w.maximized)return;dragData={sx:e.clientX,sy:e.clientY,sl:w.x,st:w.y,wid:w.id};this.focusWindow(w.id);});document.addEventListener('mousemove',(e)=>{if(!dragData||dragData.wid!==w.id)return;w.x=Math.max(-100,dragData.sl+(e.clientX-dragData.sx));w.y=Math.max(0,dragData.st+(e.clientY-dragData.sy));el.style.left=w.x+'px';el.style.top=w.y+'px';});document.addEventListener('mouseup',()=>{dragData=null;});},
-    focusWindow(id){const w=this.windows.find(w=>w.id===id);if(!w)return;w.zIndex=++this.windowZIndex;const el=document.getElementById(id);if(el)el.style.zIndex=w.zIndex;this.activeWindowId=id;this.updateTaskbar();},
-    minimizeWindow(id){const w=this.windows.find(w=>w.id===id);if(!w)return;w.minimized=true;const el=document.getElementById(id);if(el)el.style.display='none';this.updateTaskbar();},
-    restoreWindow(id){const w=this.windows.find(w=>w.id===id);if(!w)return;w.minimized=false;const el=document.getElementById(id);if(el)el.style.display='flex';this.focusWindow(id);},
-    maximizeWindow(id){const w=this.windows.find(w=>w.id===id);const el=document.getElementById(id);if(!el)return;w.maximized=!w.maximized;if(w.maximized)el.classList.add('maximized');else el.classList.remove('maximized');},
-    closeWindow(id){const w=this.windows.find(w=>w.id===id);if(!w)return;const el=document.getElementById(id);if(el){el.classList.add('closing');setTimeout(()=>el.remove(),250);}this.windows=this.windows.filter(w=>w.id!==id);this.updateTaskbar();},
-    closeAllWindows(){[...this.windows].forEach(w=>this.closeWindow(w.id));},
-    updateTaskbar(){const c=document.getElementById('taskbarApps');c.innerHTML='';this.windows.forEach(w=>{const b=document.createElement('button');b.className='taskbar-item'+(w.id===this.activeWindowId?' active':'');b.innerHTML=`${w.icon} <span>${w.title}</span><div class="indicator"></div>`;b.addEventListener('click',()=>{if(w.minimized)this.restoreWindow(w.id);else this.minimizeWindow(w.id);});c.appendChild(b);});},
-    setupTaskbarClock(){setInterval(()=>this.updateLockClock(),30000);this.updateLockClock();},
-    setupEventListeners(){document.getElementById('startBtn').addEventListener('click',(e)=>{e.stopPropagation();this.toggleStartMenu();});document.getElementById('qsToggle').addEventListener('click',(e)=>{e.stopPropagation();const q=document.getElementById('quickSettings');q.classList.toggle('open');document.getElementById('startMenu').classList.remove('open');});document.addEventListener('click',(e)=>{if(!e.target.closest('#startMenu')&&!e.target.closest('#startBtn'))document.getElementById('startMenu').classList.remove('open');if(!e.target.closest('#quickSettings')&&!e.target.closest('#qsToggle'))document.getElementById('quickSettings').classList.remove('open');if(!e.target.closest('#contextMenu'))document.getElementById('contextMenu').classList.remove('open');});document.addEventListener('contextmenu',(e)=>{e.preventDefault();this.showContextMenu(e.clientX,e.clientY);});},
-    setupContextMenu(){this.cm=[{label:'🔄 Refresh',action:()=>{this.renderDesktopIcons();}},{label:'🎨 Wallpaper',action:()=>{this.wallpaperHue=Math.random()*360;}},{label:'⚙️ Settings',action:()=>this.openApp('settings')},{label:'🔒 Lock',action:()=>this.lock()}];},
-    showContextMenu(x,y){const m=document.getElementById('contextMenu');m.innerHTML='';this.cm.forEach(i=>{const d=document.createElement('div');d.className='ctx-item';d.textContent=i.label;d.addEventListener('click',()=>{i.action();m.classList.remove('open');});m.appendChild(d);});m.style.left=Math.min(x,window.innerWidth-200)+'px';m.style.top=Math.min(y,window.innerHeight-250)+'px';m.classList.add('open');},
-    showNotification(t,m){const c=document.getElementById('notificationCenter');const toast=document.createElement('div');toast.className='toast';toast.innerHTML=`<strong>${t}</strong><br>${m}`;c.appendChild(toast);setTimeout(()=>toast.remove(),3000);},
-    toggleWiFi(){this.wifiOn=!this.wifiOn;this.showNotification('WiFi',this.wifiOn?'Connected':'Disconnected');},
-    toggleBluetooth(){this.bluetoothOn=!this.bluetoothOn;this.showNotification('Bluetooth',this.bluetoothOn?'Enabled':'Disabled');},
-    toggleDarkMode(){this.darkMode=!this.darkMode;document.body.style.filter=this.darkMode?'none':'brightness(1.1)';},
-    toggleFocus(){this.focusMode=!this.focusMode;this.showNotification('Focus',this.focusMode?'ON':'OFF');},
-    loadSettings(){try{const s=JSON.parse(localStorage.getItem('ns'));if(s){this.wallpaperHue=s.h||260;this.darkMode=s.d!==false;this.installedStoreApps=s.a||[];this.userPIN=s.p||'1234';this.backgroundImage=s.bg||null;this.wallpaperType=s.wt||'gradient';}}catch(e){}},
-    saveSettings(){try{localStorage.setItem('ns',JSON.stringify({h:this.wallpaperHue,d:this.darkMode,a:this.installedStoreApps,p:this.userPIN,bg:this.backgroundImage,wt:this.wallpaperType}));}catch(e){}},
-    installStoreApp(id){if(!this.installedStoreApps.includes(id)){this.installedStoreApps.push(id);this.saveSettings();this.renderDesktopIcons();this.showNotification('Store',`${id} installed`);}},
-    uninstallStoreApp(id){this.installedStoreApps=this.installedStoreApps.filter(i=>i!==id);this.saveSettings();this.renderDesktopIcons();this.showNotification('Store',`${id} uninstalled`);},
-    setupBrowserApp(w){const el=document.getElementById('content_'+w.id);if(!el)return;el.innerHTML=`<div style="display:flex;flex-direction:column;height:100%;gap:8px;"><div class="gcse-searchbox-only"></div><div class="gcse-searchresults-only" style="flex:1;overflow:auto;background:#fff;border-radius:8px;"></div></div>`;if(!document.getElementById('gcs-script')){const s=document.createElement('script');s.id='gcs-script';s.src='https://cse.google.com/cse.js?cx=0608671dd81384e38';s.async=true;document.head.appendChild(s);}else if(window.google&&window.google.search&&window.google.search.cse){setTimeout(()=>{window.google.search.cse.element.render();},200);}},
-    setupFilesApp(w){const el=document.getElementById('content_'+w.id);if(!el)return;el.innerHTML=`<div style="display:flex;"><div style="width:150px;background:rgba(255,255,255,0.03);padding:10px;">📂 Quick Access</div><div style="flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">${Array(8).fill('<div style="padding:12px;background:rgba(255,255,255,0.04);border-radius:8px;">📄 File</div>').join('')}</div></div>`;},
-    setupTerminalApp(w){const el=document.getElementById('content_'+w.id);if(!el)return;el.innerHTML=`<div style="background:#0a0a14;border-radius:8px;padding:14px;height:100%;font-family:monospace;color:#a0ffa0;overflow-y:auto;" id="tb_${w.id}"><div>Nexura Terminal</div><div id="to_${w.id}"></div><div style="display:flex;"><span>$ </span><input id="ti_${w.id}" autofocus style="flex:1;background:transparent;border:none;color:#a0ffa0;outline:none;"></div></div>`;const input=document.getElementById('ti_'+w.id),out=document.getElementById('to_'+w.id);input.addEventListener('keydown',e=>{if(e.key==='Enter'){const cmd=input.value.trim().toLowerCase();let res='';if(cmd==='help')res='help,clear,date,neofetch,open,install,uninstall,funfact,joke,quote,roll,flip,calc';else if(cmd==='clear')out.innerHTML='';else if(cmd==='neofetch')res='Nexura OS v24.0';else if(cmd.startsWith('open ')){this.openApp(cmd.slice(5));res='Opening...';}else if(cmd==='roll')res='🎲 '+(Math.floor(Math.random()*6)+1);else if(cmd==='flip')res=Math.random()>0.5?'🪙 Heads':'🪙 Tails';else if(cmd)res='Command not found: '+cmd;if(res)out.innerHTML+=`<div>${cmd}<br>${res}</div>`;input.value='';}});},
-    setupCalculatorApp(w){const el=document.getElementById('content_'+w.id);if(!el)return;el.innerHTML=`<input id="cd_${w.id}" readonly style="width:100%;padding:14px;font-size:28px;text-align:right;background:rgba(255,255,255,0.05);border-radius:10px;color:#fff;"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">${['C','±','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','.','⌫','='].map(b=>`<button style="padding:12px;background:rgba(255,255,255,0.06);color:#fff;border-radius:8px;">${b}</button>`).join('')}</div>`;let d={cur:'',prev:'',op:null};window['c'+w.id]=d;const disp=document.getElementById('cd_'+w.id);el.querySelectorAll('button').forEach(b=>{b.addEventListener('click',()=>{const t=b.textContent;if(t==='C'){d.cur='';d.prev='';d.op=null;}else if(t==='⌫'){d.cur=d.cur.slice(0,-1);}else if(t==='±'){d.cur=d.cur.startsWith('-')?d.cur.slice(1):'-'+d.cur;}else if(t==='='){if(d.op&&d.prev){const p=parseFloat(d.prev),c=parseFloat(d.cur);switch(d.op){case'+':d.cur=(p+c).toString();break;case'−':d.cur=(p-c).toString();break;case'×':d.cur=(p*c).toString();break;case'÷':d.cur=c!==0?(p/c).toString():'Error';break;case'%':d.cur=(p%c).toString();}d.prev='';d.op=null;}}else if(['+','−','×','÷','%'].includes(t)){d.prev=d.cur;d.op=t;d.cur='';}else{d.cur+=t;}disp.value=d.cur||'0';});});},
-    setupSettingsApp(w){const el=document.getElementById('content_'+w.id);if(!el)return;el.innerHTML=`<div style="display:flex;height:100%;"><div style="width:160px;background:rgba(255,255,255,0.03);padding:10px;" id="sn_${w.id}"></div><div style="flex:1;padding:10px;overflow-y:auto;" id="sp_${w.id}"></div></div>`;const tabs=['Appearance','Desktop','Taskbar','Background','Accounts'];const nav=document.getElementById('sn_'+w.id);tabs.forEach(t=>{const d=document.createElement('div');d.textContent=t;d.style.padding='8px';d.style.cursor='pointer';d.addEventListener('click',()=>this.renderSettingsTab(w.id,t.toLowerCase()));nav.appendChild(d);});this.renderSettingsTab(w.id,'appearance');},
-    renderSettingsTab(wid,tab){const panel=document.getElementById('sp_'+wid);if(!panel)return;const sl=(l,k,min=0,max=100)=>`<div><label>${l}: <span id="${k}v">${this.settingsStore[k]||50}</span></label><input type="range" min="${min}" max="${max}" value="${this.settingsStore[k]||50}" oninput="document.getElementById('${k}v').textContent=this.value;NexuraOS.settingsStore['${k}']=parseFloat(this.value);NexuraOS.saveSettings();NexuraOS.applySettings();"></div>`;let h='';if(tab==='appearance')h='<h3>🎨 Appearance</h3>'+sl('Blur','blurAmount',0,30)+sl('Transparency','transparency',0,100)+sl('Border Radius','borderRadius',0,30)+sl('Shadow','shadowIntensity',0,50);else if(tab==='desktop')h='<h3>🖥️ Desktop</h3>'+sl('Icon Size','iconSize',32,96);else if(tab==='taskbar')h='<h3>📌 Taskbar</h3>'+sl('Transparency','taskbarTransparency',0,100);else if(tab==='background'){h=`<h3>🖼️ Background</h3><p><strong>Browse 4K Wallpapers:</strong> <a href="https://www.pexels.com/search/4k%20wallpaper/" target="_blank" style="color:var(--accent2);">Open Pexels 4K Wallpapers ↗</a></p><p style="margin-top:10px;">Choose a preset:</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">${PRESET_BG.map((url,i)=>`<img src="${url}" style="width:80px;height:50px;object-fit:cover;cursor:pointer;border:2px solid ${NexuraOS.backgroundImage===url?'var(--accent)':'transparent'};border-radius:6px;" onclick="NexuraOS.backgroundImage='${url}';NexuraOS.saveSettings();NexuraOS.applySettings();">`).join('')}</div><p>Or paste an image URL:</p><input type="text" placeholder="https://example.com/image.jpg" id="bg_url_${wid}" style="width:100%;padding:6px;background:rgba(255,255,255,0.05);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:6px;margin-bottom:8px;"><button onclick="NexuraOS.backgroundImage=document.getElementById('bg_url_${wid}').value;NexuraOS.saveSettings();NexuraOS.applySettings();" style="padding:6px 12px;background:var(--accent);color:#fff;border:none;border-radius:6px;">Apply URL</button><p style="margin-top:10px;">Or upload from your device:</p><input type="file" accept="image/*" onchange="const r=new FileReader();r.onload=e=>{NexuraOS.backgroundImage=e.target.result;NexuraOS.saveSettings();NexuraOS.applySettings();};r.readAsDataURL(this.files[0]);">${this.backgroundImage?`<p style="margin-top:8px;"><button onclick="NexuraOS.backgroundImage=null;NexuraOS.saveSettings();NexuraOS.applySettings();" style="padding:4px 10px;background:rgba(255,70,70,0.3);color:#ff6b6b;border:1px solid rgba(255,70,70,0.5);border-radius:6px;">Remove Image</button></p>`:''}<p style="margin-top:10px;">Wallpaper Type:</p><select onchange="NexuraOS.wallpaperType=this.value;NexuraOS.saveSettings();NexuraOS.applySettings();"><option value="gradient" ${this.wallpaperType==='gradient'?'selected':''}>Gradient</option><option value="particles" ${this.wallpaperType==='particles'?'selected':''}>Particles</option><option value="solid" ${this.wallpaperType==='solid'?'selected':''}>Solid</option></select><br>Hue: <input type="range" min="0" max="360" value="${this.wallpaperHue}" oninput="NexuraOS.wallpaperHue=parseInt(this.value);NexuraOS.saveSettings();NexuraOS.applySettings();">`;}else if(tab==='accounts')h=`<h3>👤 Accounts</h3><p>Change PIN: <input type="password" id="np_${wid}" value="${this.userPIN}"><button onclick="NexuraOS.userPIN=document.getElementById('np_${wid}').value;NexuraOS.saveSettings();">Save</button></p>`;panel.innerHTML=h;},
-    setupNotesApp(w){const el=document.getElementById('content_'+w.id);if(!el)return;el.innerHTML=`<textarea style="width:100%;height:100%;background:rgba(255,255,255,0.03);color:#fff;padding:12px;border-radius:8px;">Notes...</textarea>`;},
-    setupMusicApp(w){const el=document.getElementById('content_'+w.id);if(!el)return;el.innerHTML=`<iframe src="https://open.spotify.com/" width="100%" height="100%" style="border:0;border-radius:12px;"></iframe>`;},
-    setupWeatherApp(w){const el=document.getElementById('content_'+w.id);if(!el)return;el.innerHTML=`<div style="text-align:center;padding:30px;"><h2>🌤️ Weather</h2><p>☀️ Clear Sky • 22°C</p></div>`;},
-    setupPaintApp(w){const el=document.getElementById('content_'+w.id);if(!el)return;el.innerHTML=`<div style="display:flex;flex-direction:column;height:100%;gap:4px;"><div style="display:flex;gap:6px;"><input type="color" id="pc_${w.id}" value="#6c5ce7"><input type="range" id="ps_${w.id}" min="1" max="20" value="3"><button id="pcl_${w.id}">🗑️ Clear</button><button id="psv_${w.id}">💾 Save</button></div><canvas id="pcn_${w.id}" style="flex:1;background:#fff;border-radius:8px;"></canvas></div>`;const c=document.getElementById('pcn_'+w.id),ctx=c.getContext('2d');c.width=c.offsetWidth;c.height=c.offsetHeight;let p=false;c.addEventListener('pointerdown',e=>{p=true;ctx.beginPath();ctx.moveTo(e.offsetX,e.offsetY);});c.addEventListener('pointerup',()=>p=false);c.addEventListener('pointermove',e=>{if(!p)return;ctx.strokeStyle=document.getElementById('pc_'+w.id).value;ctx.lineWidth=document.getElementById('ps_'+w.id).value;ctx.lineCap='round';ctx.lineTo(e.offsetX,e.offsetY);ctx.stroke();});document.getElementById('pcl_'+w.id).addEventListener('click',()=>ctx.clearRect(0,0,c.width,c.height));document.getElementById('psv_'+w.id).addEventListener('click',()=>{const a=document.createElement('a');a.download='painting.png';a.href=c.toDataURL();a.click();});},
-    setupCodeEditorApp(w){const el=document.getElementById('content_'+w.id);if(!el)return;el.innerHTML=`<textarea id="ce_${w.id}" style="flex:1;background:#0a0a14;color:#a0ffa0;font-family:monospace;padding:12px;border-radius:8px;">console.log('Hello!');</textarea><button id="cr_${w.id}" style="padding:8px 16px;background:var(--accent);color:#fff;border:none;border-radius:8px;">▶ Run</button><pre id="co_${w.id}" style="background:#111;color:#fff;padding:8px;"></pre>`;document.getElementById('cr_'+w.id).addEventListener('click',()=>{try{const r=eval(document.getElementById('ce_'+w.id).value);document.getElementById('co_'+w.id).textContent=String(r);}catch(e){document.getElementById('co_'+w.id).textContent='Error: '+e.message;}});},
-    setupTicTacToe(w){const el=document.getElementById('content_'+w.id);if(!el)return;el.innerHTML=`<h3 style="text-align:center;">🎮 Tic Tac Toe</h3><div id="ttt_board_${w.id}" style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;max-width:200px;margin:10px auto;"></div><p id="ttt_status_${w.id}" style="text-align:center;margin-top:10px;"></p><button id="ttt_reset_${w.id}" style="display:block;margin:10px auto;padding:6px 20px;">Restart</button>`;let board=Array(9).fill(''),turn='X',gameOver=false;const status=document.getElementById('ttt_status_'+w.id);const render=()=>{const bd=document.getElementById('ttt_board_'+w.id);bd.innerHTML='';board.forEach((v,i)=>{const cell=document.createElement('div');cell.style.cssText='aspect-ratio:1;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;border-radius:6px;';cell.textContent=v;cell.addEventListener('click',()=>{if(gameOver||v)return;board[i]=turn;render();if(checkWin()){status.textContent=turn+' wins!';gameOver=true;return;}if(board.every(c=>c)){status.textContent='Draw!';gameOver=true;return;}turn=turn==='X'?'O':'X';status.textContent=turn+"'s turn";});bd.appendChild(cell);});};const checkWin=()=>{const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];return wins.some(w=>board[w[0]]&&board[w[0]]===board[w[1]]&&board[w[0]]===board[w[2]]);};render();status.textContent="X's turn";document.getElementById('ttt_reset_'+w.id).addEventListener('click',()=>{board=Array(9).fill('');turn='X';gameOver=false;render();status.textContent="X's turn";});},
-    setupColorPicker(w){const el=document.getElementById('content_'+w.id);if(!el)return;el.innerHTML=`<div style="text-align:center;"><input type="color" id="cp_${w.id}" value="#6c5ce7" style="width:100%;height:120px;border:none;cursor:pointer;"><p style="margin-top:10px;">Selected: <span id="cp_val_${w.id}">#6c5ce7</span></p></div>`;document.getElementById('cp_'+w.id).addEventListener('input',e=>{document.getElementById('cp_val_'+w.id).textContent=e.target.value;});},
-    setupTuner(w){const el=document.getElementById('content_'+w.id);if(!el)return;el.innerHTML=`<div style="text-align:center;padding:20px;"><h3>🎵 Tuner</h3><p id="tuner_note_${w.id}">--</p><button id="tuner_start_${w.id}" style="padding:6px 16px;">Start Listening</button></div>`;},
-    setupDice(w){const el=document.getElementById('content_'+w.id);if(!el)return;el.innerHTML=`<div style="text-align:center;padding:20px;"><h2>🎲</h2><div id="dice_result_${w.id}" style="font-size:80px;">1</div><button id="dice_roll_${w.id}" style="padding:8px 20px;">Roll</button></div>`;document.getElementById('dice_roll_'+w.id).addEventListener('click',()=>{document.getElementById('dice_result_'+w.id).textContent=Math.floor(Math.random()*6)+1;});},
-    setupMeditate(w){const el=document.getElementById('content_'+w.id);if(!el)return;el.innerHTML=`<div style="text-align:center;padding:20px;"><h2>🧘 Meditate</h2><p>Breathe in... breathe out...</p><div id="meditate_timer_${w.id}" style="font-size:30px;">2:00</div><button id="meditate_start_${w.id}" style="padding:8px 16px;">Start</button></div>`;let timer=null,sec=120;document.getElementById('meditate_start_'+w.id).addEventListener('click',()=>{if(timer)return;timer=setInterval(()=>{sec--;document.getElementById('meditate_timer_'+w.id).textContent=Math.floor(sec/60)+':'+(sec%60).toString().padStart(2,'0');if(sec<=0){clearInterval(timer);timer=null;sec=120;document.getElementById('meditate_timer_'+w.id).textContent='2:00';}},1000);});},
-    setupMetronome(w){const el=document.getElementById('content_'+w.id);if(!el)return;el.innerHTML=`<div style="text-align:center;padding:20px;"><h2>🎼 Metronome</h2><p>BPM: <span id="metro_bpm_${w.id}">120</span></p><input type="range" min="40" max="200" value="120" id="metro_slider_${w.id}" style="width:200px;"><br><button id="metro_toggle_${w.id}" style="padding:8px 20px;margin-top:10px;">Start</button></div>`;let playing=false,interval=null;const beep=()=>{const ctx=new AudioContext();const osc=ctx.createOscillator();const gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);osc.frequency.value=800;gain.gain.value=0.1;osc.start();osc.stop(ctx.currentTime+0.1);};document.getElementById('metro_slider_'+w.id).addEventListener('input',e=>{document.getElementById('metro_bpm_'+w.id).textContent=e.target.value;if(playing){clearInterval(interval);interval=setInterval(beep,60000/e.target.value);}});document.getElementById('metro_toggle_'+w.id).addEventListener('click',()=>{playing=!playing;const btn=document.getElementById('metro_toggle_'+w.id);btn.textContent=playing?'Stop':'Start';if(playing)interval=setInterval(beep,60000/parseInt(document.getElementById('metro_slider_'+w.id).value));else clearInterval(interval);});},
-    setupCoinFlip(w){const el=document.getElementById('content_'+w.id);if(!el)return;el.innerHTML=`<div style="text-align:center;padding:20px;"><div id="coin_result_${w.id}" style="font-size:80px;">🪙</div><button id="coin_flip_${w.id}" style="padding:8px 20px;">Flip</button></div>`;document.getElementById('coin_flip_'+w.id).addEventListener('click',()=>{const val=Math.random()>0.5?'Heads':'Tails';document.getElementById('coin_result_'+w.id).textContent=val==='Heads'?'🪙 Heads':'🪙 Tails';});},
-    setupSpinner(w){const el=document.getElementById('content_'+w.id);if(!el)return;const options=['🍕','🍔','🌮','🍣','🍩','🍪','🍿','🍦'];el.innerHTML=`<div style="text-align:center;padding:20px;"><h2>🎰 Spinner</h2><div id="spinner_result_${w.id}" style="font-size:60px;">${options[0]}</div><button id="spinner_spin_${w.id}" style="padding:8px 20px;">Spin</button></div>`;document.getElementById('spinner_spin_'+w.id).addEventListener('click',()=>{let i=0;const interval=setInterval(()=>{document.getElementById('spinner_result_'+w.id).textContent=options[i%options.length];i++;},80);setTimeout(()=>{clearInterval(interval);document.getElementById('spinner_result_'+w.id).textContent=options[Math.floor(Math.random()*options.length)];},1500);});},
-    setupStoreApp(w){const el=document.getElementById('content_'+w.id);if(!el)return;const apps=STORE_APPS;let tab='all';el.innerHTML=`<h3>🛍️ App Store</h3><div style="display:flex;gap:6px;margin-bottom:8px;"><button class="stb active" data-t="all">All</button><button class="stb" data-t="installed">Installed</button><button class="stb" data-t="uninstalled">Uninstalled</button></div><input id="ss_${w.id}" placeholder="Search..." style="width:100%;padding:6px;margin-bottom:8px;background:rgba(255,255,255,0.05);color:#fff;border-radius:6px;"><div id="sg_${w.id}" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;max-height:400px;overflow-y:auto;"></div>`;const grid=document.getElementById('sg_'+w.id),search=document.getElementById('ss_'+w.id);const render=(f='')=>{const fl=apps.filter(a=>{const ms=a.name.toLowerCase().includes(f.toLowerCase());const inst=this.installedStoreApps.includes(a.id);if(tab==='installed')return ms&&inst;if(tab==='uninstalled')return ms&&!inst;return ms;});grid.innerHTML=fl.map(a=>{const inst=this.installedStoreApps.includes(a.id);const isWebApp=a.url&&!a.url.startsWith('#');return`<div style="padding:12px;background:rgba(255,255,255,0.04);border-radius:10px;text-align:center;cursor:${isWebApp?'pointer':'default'};" ${isWebApp?`onclick="window.open('${a.url}','_blank')"`:''}><div style="font-size:28px;">${a.icon}</div><b>${a.name}</b><br>${isWebApp?`<button class="sib" data-id="${a.id}" style="padding:6px 12px;border-radius:6px;background:${inst?'rgba(255,70,70,0.3)':'rgba(108,92,231,0.3)'};color:#fff;border:none;margin-top:6px;">${inst?'Uninstall':'Install'}</button><br><a href="${a.url}" target="_blank" style="color:var(--accent2);font-size:11px;">Open ↗</a>`:`<small style="color:#888;">Built‑in app</small>`}</div>`;}).join('');};render();search.addEventListener('input',e=>render(e.target.value));el.querySelectorAll('.stb').forEach(b=>{b.addEventListener('click',()=>{tab=b.dataset.t;el.querySelectorAll('.stb').forEach(x=>x.classList.remove('active'));b.classList.add('active');render(search.value);});});grid.addEventListener('click',e=>{if(e.target.classList.contains('sib')){e.stopPropagation();const id=e.target.dataset.id;if(this.installedStoreApps.includes(id))this.uninstallStoreApp(id);else this.installStoreApp(id);render(search.value);}});},
-    setupGenericApp(w,id){const el=document.getElementById('content_'+w.id);if(!el)return;const storeApp=STORE_APPS.find(a=>a.id===id);const name=storeApp?storeApp.name:id;el.innerHTML=`<h3>${name}</h3><p>Installed from Store.</p>`;},
-    setupGamesApp(w){const el=document.getElementById('content_'+w.id);if(!el)return;el.innerHTML=`<h3>🎮 Game Launcher</h3><div style="display:flex;gap:6px;margin-bottom:8px;"><button data-g="snake">🐍 Snake</button><button data-g="pong">🏓 Pong</button></div><div id="ga_${w.id}"></div>`;el.querySelectorAll('button[data-g]').forEach(b=>{b.addEventListener('click',()=>{const g=b.dataset.g;if(this.activeGames[w.id]){this.activeGames[w.id].cleanup();delete this.activeGames[w.id];}document.getElementById('ga_'+w.id).innerHTML='';if(g==='snake')this.launchSnake(w.id);else if(g==='pong')this.launchPong(w.id);});});},
-    launchSnake(wid){const a=document.getElementById('ga_'+wid);a.innerHTML=`<div><span>🐍 Score: <span id="ss_${wid}">0</span></span><button id="rs_${wid}">🔄 Restart</button></div><canvas id="sc_${wid}" width="400" height="250" style="background:#0a0a14;"></canvas>`;const c=document.getElementById('sc_'+wid),ctx=c.getContext('2d'),ss=document.getElementById('ss_'+wid);let snake=[{x:10,y:10}],food={x:15,y:15},dir={x:1,y:0},score=0,go=false,lt=0;const loop=(ts)=>{if(go){ctx.fillStyle='#f55';ctx.fillText('Game Over! '+score,120,125);return;}if(ts-lt<120){requestAnimationFrame(loop);return;}lt=ts;const h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};if(h.x<0||h.x>=40||h.y<0||h.y>=25||snake.some(s=>s.x===h.x&&s.y===h.y)){go=true;requestAnimationFrame(loop);return;}snake.unshift(h);if(h.x===food.x&&h.y===food.y){score++;ss.textContent=score;food={x:Math.floor(Math.random()*40),y:Math.floor(Math.random()*25)};}else snake.pop();ctx.fillStyle='#0a0a14';ctx.fillRect(0,0,400,250);ctx.fillStyle='#afa';snake.forEach(s=>ctx.fillRect(s.x*10,s.y*10,9,9));ctx.fillStyle='#f8a';ctx.fillRect(food.x*10,food.y*10,9,9);requestAnimationFrame(loop);};requestAnimationFrame(loop);const kh=(e)=>{if(e.key==='ArrowUp'&&dir.y===0)dir={x:0,y:-1};if(e.key==='ArrowDown'&&dir.y===0)dir={x:0,y:1};if(e.key==='ArrowLeft'&&dir.x===0)dir={x:-1,y:0};if(e.key==='ArrowRight'&&dir.x===0)dir={x:1,y:0};};document.addEventListener('keydown',kh);document.getElementById('rs_'+wid).addEventListener('click',()=>{document.removeEventListener('keydown',kh);this.launchSnake(wid);});this.activeGames[wid]={cleanup:()=>document.removeEventListener('keydown',kh)};},
-    launchPong(wid){const a=document.getElementById('ga_'+wid);a.innerHTML=`<div><span>🏓 Score: <span id="ps_${wid}">0</span></span><button id="rp_${wid}">🔄 Restart</button></div><canvas id="pc_${wid}" width="400" height="250" style="background:#0a0a14;"></canvas>`;const c=document.getElementById('pc_'+wid),ctx=c.getContext('2d'),ss=document.getElementById('ps_'+wid);let py=90,ball={x:200,y:125,vx:4,vy:3},ay=90,score=0,go=false;const loop=()=>{if(go){ctx.fillStyle='#f55';ctx.fillText('Game Over! '+score,140,125);return;}ball.x+=ball.vx;ball.y+=ball.vy;if(ball.y<=0||ball.y>=245)ball.vy*=-1;if(ball.x<=20&&ball.y>py&&ball.y<py+60){ball.vx*=-1;score++;ss.textContent=score;}if(ball.x>=385&&ball.y>ay&&ball.y<ay+60)ball.vx*=-1;if(ball.x<0||ball.x>400){go=true;requestAnimationFrame(loop);return;}ay+=(ball.y-(ay+30))*0.1;ctx.fillStyle='#0a0a14';ctx.fillRect(0,0,400,250);ctx.fillStyle='#fff';ctx.fillRect(10,py,8,60);ctx.fillRect(385,ay,8,60);ctx.fillStyle='#a9f';ctx.beginPath();ctx.arc(ball.x,ball.y,6,0,Math.PI*2);ctx.fill();requestAnimationFrame(loop);};requestAnimationFrame(loop);const kh=(e)=>{if(e.key==='ArrowUp')py=Math.max(0,py-15);if(e.key==='ArrowDown')py=Math.min(190,py+15);};document.addEventListener('keydown',kh);document.getElementById('rp_'+wid).addEventListener('click',()=>{document.removeEventListener('keydown',kh);this.launchPong(wid);});this.activeGames[wid]={cleanup:()=>document.removeEventListener('keydown',kh)};}
-};
-window.NexuraOS=NexuraOS;
-document.addEventListener('DOMContentLoaded',()=>{NexuraOS.init();document.getElementById('desktop').style.display='none';});
+(function() {
+    const STORE_APPS = parseApps();
+    const NexuraOS = {
+        version: '24.0.0',
+        build: '2026-NEX-024',
+        isLocked: true,
+        isBooted: false,
+        windows: [],
+        windowZIndex: 100,
+        activeWindowId: null,
+        pinnedApps: ['browser','files','terminal','calculator','settings','notes','music','paint','codeeditor','weather','store','games'],
+        wifiOn: true,
+        bluetoothOn: true,
+        darkMode: true,
+        focusMode: false,
+        wallpaperHue: 260,
+        wallpaperType: 'gradient',
+        backgroundImage: null,
+        settingsStore: {
+            blurAmount: 24,
+            transparency: 75,
+            borderRadius: 14,
+            shadowIntensity: 40,
+            iconSize: 48,
+            showLabels: true,
+            autoHide: false,
+            taskbarTransparency: 80,
+            lockBlur: 10
+        },
+        installedStoreApps: [],
+        activeGames: {},
+        userPIN: '1234',
+        history: [],
+        // added missing properties
+        username: 'User',
+        autoLockEnabled: false,
+        lockTimeout: 300,
+        showLockScreenOnStart: true,
+
+        init() {
+            this.loadSettings();
+            this.setupBoot();
+            this.setupWallpaper();
+            this.setupDesktopIcons();
+            this.setupStartMenu();
+            this.setupTaskbarClock();
+            this.setupEventListeners();
+            this.setupContextMenu();
+            document.getElementById('pinInput').addEventListener('keydown', e => {
+                if (e.key === 'Enter') this.checkPIN();
+            });
+            this.applySettings();
+        },
+
+        applySettings() {
+            const s = this.settingsStore;
+            document.documentElement.style.setProperty('--os-blur', s.blurAmount + 'px');
+            document.documentElement.style.setProperty('--os-transparency', (s.transparency / 100).toFixed(2));
+            document.documentElement.style.setProperty('--os-border-radius', s.borderRadius + 'px');
+            document.documentElement.style.setProperty('--os-shadow', `0 8px ${s.shadowIntensity}px rgba(0,0,0,0.5)`);
+            this.windows.forEach(w => {
+                const el = document.getElementById(w.id);
+                if (el) {
+                    el.style.background = `rgba(30,30,55,${(s.transparency/100).toFixed(2)})`;
+                    el.style.backdropFilter = `blur(${s.blurAmount}px)`;
+                    el.style.borderRadius = s.borderRadius + 'px';
+                    el.style.boxShadow = `0 8px ${s.shadowIntensity}px rgba(0,0,0,0.5)`;
+                }
+            });
+            const tb = document.getElementById('taskbar');
+            if (tb) {
+                tb.style.background = s.autoHide ? 'transparent' : `rgba(16,16,32,${(s.taskbarTransparency/100).toFixed(2)})`;
+                tb.style.height = s.autoHide ? '0px' : '50px';
+            }
+            document.querySelectorAll('.desktop-icon').forEach(icon => {
+                const img = icon.querySelector('.icon-img');
+                if (img) {
+                    img.style.width = s.iconSize + 'px';
+                    img.style.height = s.iconSize + 'px';
+                    img.style.fontSize = (s.iconSize * 0.54) + 'px';
+                }
+                const lbl = icon.querySelector('.icon-label');
+                if (lbl) lbl.style.display = s.showLabels ? 'block' : 'none';
+            });
+            this.setupWallpaper();
+        },
+
+        setupBoot() {
+            const steps = ['Kernel...','Drivers...','Integrity...','Display...','Security...','Environment...','Services...','Desktop...','Welcome! ✨'];
+            const bar = document.getElementById('bootProgressBar');
+            const info = document.getElementById('bootInfo');
+            let step = 0;
+            const interval = setInterval(() => {
+                if (step < steps.length) {
+                    info.textContent = steps[step];
+                    bar.style.width = ((step + 1) / steps.length * 100) + '%';
+                    step++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        document.getElementById('bootScreen').classList.add('hidden');
+                        this.isBooted = true;
+                        this.showLockScreen();
+                    }, 600);
+                }
+            }, 300);
+        },
+
+        setupWallpaper() {
+            const canvas = document.getElementById('wallpaperCanvas');
+            const ctx = canvas.getContext('2d');
+            const resize = () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            };
+            resize();
+            window.removeEventListener('resize', resize);
+            window.addEventListener('resize', resize);
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            if (this.backgroundImage) img.src = this.backgroundImage;
+            const draw = () => {
+                if (img.complete && img.naturalWidth > 0 && this.backgroundImage) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+                    const w = img.width * scale;
+                    const h = img.height * scale;
+                    const x = (canvas.width - w) / 2;
+                    const y = (canvas.height - h) / 2;
+                    ctx.drawImage(img, x, y, w, h);
+                } else if (this.wallpaperType === 'gradient') {
+                    const grad = ctx.createRadialGradient(
+                        canvas.width * 0.3, canvas.height * 0.4, 50,
+                        canvas.width * 0.7, canvas.height * 0.6, canvas.width * 0.9
+                    );
+                    grad.addColorStop(0, `hsl(${this.wallpaperHue},60%,18%)`);
+                    grad.addColorStop(0.5, `hsl(${(this.wallpaperHue+40)%360},50%,10%)`);
+                    grad.addColorStop(1, `hsl(${(this.wallpaperHue+80)%360},40%,4%)`);
+                    ctx.fillStyle = grad;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                } else if (this.wallpaperType === 'particles') {
+                    ctx.fillStyle = '#0a0a14';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    for (let i = 0; i < 120; i++) {
+                        const seed = i * 137.5;
+                        const px = (seed * 31.7) % canvas.width;
+                        const py = (seed * 73.1) % canvas.height;
+                        ctx.fillStyle = `hsla(${this.wallpaperHue},70%,70%,${0.1 + 0.05 * Math.sin(Date.now()/3000 + i)})`;
+                        ctx.beginPath();
+                        ctx.arc(px, py, 1.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                } else {
+                    ctx.fillStyle = `hsl(${this.wallpaperHue},30%,10%)`;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                }
+                requestAnimationFrame(draw);
+            };
+            if (img.src) img.onload = () => requestAnimationFrame(draw);
+            else requestAnimationFrame(draw);
+        },
+
+        showLockScreen() {
+            const ls = document.getElementById('lockScreen');
+            ls.classList.remove('hidden');
+            this.isLocked = true;
+            this.updateLockClock();
+            clearInterval(this._lockClockInterval);
+            this._lockClockInterval = setInterval(() => this.updateLockClock(), 1000);
+            setTimeout(() => {
+                const pin = document.getElementById('pinInput');
+                if (pin) pin.focus();
+            }, 100);
+            this.spawnLockParticles();
+            document.getElementById('lockError').textContent = '';
+        },
+
+        spawnLockParticles() {
+            const container = document.getElementById('lockParticles');
+            if (!container) return;
+            container.innerHTML = '';
+            for (let i = 0; i < 30; i++) {
+                const p = document.createElement('div');
+                p.className = 'lock-particle';
+                const size = Math.random() * 12 + 4;
+                p.style.width = size + 'px';
+                p.style.height = size + 'px';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.top = Math.random() * 100 + '%';
+                p.style.animationDuration = (Math.random() * 8 + 6) + 's';
+                p.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(p);
+            }
+        },
+
+        updateLockClock() {
+            const now = new Date();
+            document.getElementById('lockTime').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+            document.getElementById('lockDate').textContent = now.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' });
+            document.getElementById('taskbarTime').innerHTML =
+                `${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}<br><small>${now.toLocaleDateString([], { day: 'numeric', month: 'short' })}</small>`;
+        },
+
+        checkPIN() {
+            const pin = document.getElementById('pinInput').value;
+            if (pin === this.userPIN) this.unlock();
+            else document.getElementById('lockError').textContent = 'Incorrect PIN';
+        },
+
+        unlock() {
+            if (!this.isLocked) return;
+            document.getElementById('lockScreen').classList.add('hidden');
+            this.isLocked = false;
+            clearInterval(this._lockClockInterval);
+            this.showDesktop();
+            document.getElementById('desktop').style.display = 'flex';
+        },
+
+        lock() {
+            if (this.isLocked) return;
+            this.isLocked = true;
+            this.closeAllWindows();
+            document.getElementById('desktop').style.display = 'none';
+            this.showLockScreen();
+        },
+
+        restart() {
+            this.closeAllWindows();
+            document.getElementById('desktop').style.display = 'none';
+            document.getElementById('bootScreen').classList.remove('hidden');
+            document.getElementById('lockScreen').classList.add('hidden');
+            document.getElementById('bootProgressBar').style.width = '0%';
+            this.isBooted = false;
+            this.isLocked = true;
+            setTimeout(() => this.setupBoot(), 400);
+        },
+
+        shutdown() {
+            document.body.style.transition = 'opacity 0.8s';
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#fff;font-size:24px;background:#000;">Nexura OS shut down.</div>';
+                document.body.style.opacity = '1';
+            }, 800);
+        },
+
+        showDesktop() {
+            document.getElementById('desktop').style.display = 'flex';
+            this.renderDesktopIcons();
+        },
+
+        setupDesktopIcons() {
+            this.desktopIcons = [
+                { id: 'browser', name: 'Aura Browser', icon: '🌐', color: '#3498db' },
+                { id: 'files', name: 'Files', icon: '📁', color: '#f39c12' },
+                { id: 'terminal', name: 'Terminal', icon: '⬛', color: '#2d3436' },
+                { id: 'calculator', name: 'Calculator', icon: '🔢', color: '#636e72' },
+                { id: 'settings', name: 'Settings', icon: '⚙️', color: '#7f8c8d' },
+                { id: 'notes', name: 'Notes', icon: '📝', color: '#fdcb6e' },
+                { id: 'music', name: 'Music', icon: '🎵', color: '#e84393' },
+                { id: 'store', name: 'App Store', icon: '🛍️', color: '#00cec9' },
+                { id: 'games', name: 'Games', icon: '🎮', color: '#e74c3c' },
+                { id: 'paint', name: 'Nexura Paint', icon: '🎨', color: '#fd79a8' },
+                { id: 'codeeditor', name: 'Code Editor', icon: '💻', color: '#6c5ce7' },
+                { id: 'weather', name: 'Weather', icon: '🌤️', color: '#74b9ff' }
+            ];
+        },
+
+        renderDesktopIcons() {
+            const d = document.getElementById('desktop');
+            d.innerHTML = '';
+            const all = [...this.desktopIcons];
+            const storeMap = {};
+            STORE_APPS.forEach(a => storeMap[a.id] = a.name);
+            this.installedStoreApps.forEach(id => {
+                all.push({ id, name: storeMap[id] || id, icon: '📦', color: '#555' });
+            });
+            all.forEach(a => {
+                const div = document.createElement('div');
+                div.className = 'desktop-icon';
+                div.innerHTML = `<div class="icon-img" style="background:${a.color};color:#fff;">${a.icon}</div><div class="icon-label">${a.name}</div>`;
+                div.addEventListener('dblclick', () => this.openApp(a.id));
+                div.addEventListener('contextmenu', e => {
+                    e.preventDefault();
+                    if (a.icon === '📦' && this.installedStoreApps.includes(a.id)) {
+                        this.uninstallStoreApp(a.id);
+                        this.showNotification('Store', `${a.name} uninstalled`);
+                    }
+                });
+                d.appendChild(div);
+            });
+        },
+
+        setupStartMenu() {
+            const pc = document.getElementById('startPinned');
+            pc.innerHTML = '';
+            this.pinnedApps.forEach(id => {
+                const a = this.desktopIcons.find(d => d.id === id) || { id, name: id, icon: '📦', color: '#555' };
+                const div = document.createElement('div');
+                div.className = 'start-pin-item';
+                div.innerHTML = `${a.icon}<span>${a.name}</span>`;
+                div.addEventListener('click', () => {
+                    this.openApp(id);
+                    this.toggleStartMenu(false);
+                });
+                pc.appendChild(div);
+            });
+        },
+
+        toggleStartMenu(f) {
+            const m = document.getElementById('startMenu');
+            const o = typeof f === 'boolean' ? f : !m.classList.contains('open');
+            if (o) {
+                m.classList.add('open');
+                document.getElementById('quickSettings').classList.remove('open');
+            } else {
+                m.classList.remove('open');
+            }
+        },
+
+        openApp(id) {
+            if (this.isLocked) return;
+            const ew = this.windows.find(w => w.appId === id && !w.minimized);
+            if (ew) {
+                this.focusWindow(ew.id);
+                return;
+            }
+            const app = this.getAppDefinition(id);
+            if (!app) return;
+            const wid = 'w' + Date.now();
+            const w = {
+                id: wid,
+                appId: id,
+                title: app.title,
+                icon: app.icon,
+                x: 80 + Math.random() * 200,
+                y: 50 + Math.random() * 100,
+                width: app.defaultWidth || 700,
+                height: app.defaultHeight || 480,
+                minimized: false,
+                maximized: false,
+                zIndex: ++this.windowZIndex
+            };
+            this.windows.push(w);
+            this.renderWindow(w);
+            this.updateTaskbar();
+            this.focusWindow(wid);
+            if (app.onOpen) app.onOpen(w);
+        },
+
+        getAppDefinition(id) {
+            const defs = {
+                browser: { title: 'Aura Browser', icon: '🌐', defaultWidth: 900, defaultHeight: 600, onOpen: w => this.setupBrowserApp(w) },
+                files: { title: 'Files', icon: '📁', defaultWidth: 750, defaultHeight: 500, onOpen: w => this.setupFilesApp(w) },
+                terminal: { title: 'Terminal', icon: '⬛', defaultWidth: 650, defaultHeight: 420, onOpen: w => this.setupTerminalApp(w) },
+                calculator: { title: 'Calculator', icon: '🔢', defaultWidth: 320, defaultHeight: 420, onOpen: w => this.setupCalculatorApp(w) },
+                settings: { title: 'Settings', icon: '⚙️', defaultWidth: 800, defaultHeight: 550, onOpen: w => this.setupSettingsApp(w) },
+                notes: { title: 'Notes', icon: '📝', defaultWidth: 400, defaultHeight: 400, onOpen: w => this.setupNotesApp(w) },
+                music: { title: 'Music', icon: '🎵', defaultWidth: 600, defaultHeight: 450, onOpen: w => this.setupMusicApp(w) },
+                paint: { title: 'Nexura Paint', icon: '🎨', defaultWidth: 750, defaultHeight: 500, onOpen: w => this.setupPaintApp(w) },
+                codeeditor: { title: 'Code Editor', icon: '💻', defaultWidth: 700, defaultHeight: 500, onOpen: w => this.setupCodeEditorApp(w) },
+                weather: { title: 'Weather', icon: '🌤️', defaultWidth: 400, defaultHeight: 450, onOpen: w => this.setupWeatherApp(w) },
+                store: { title: 'App Store', icon: '🛍️', defaultWidth: 800, defaultHeight: 550, onOpen: w => this.setupStoreApp(w) },
+                games: { title: 'Game Launcher', icon: '🎮', defaultWidth: 650, defaultHeight: 480, onOpen: w => this.setupGamesApp(w) },
+                tic_tac_toe: { title: 'Tic Tac Toe', icon: '🎮', defaultWidth: 350, defaultHeight: 400, onOpen: w => this.setupTicTacToe(w) },
+                color_picker: { title: 'Color Picker', icon: '🎨', defaultWidth: 350, defaultHeight: 300, onOpen: w => this.setupColorPicker(w) },
+                tuner: { title: 'Tuner', icon: '🎵', defaultWidth: 350, defaultHeight: 200, onOpen: w => this.setupTuner(w) },
+                roll_dice: { title: 'Roll a Dice', icon: '🎲', defaultWidth: 300, defaultHeight: 250, onOpen: w => this.setupDice(w) },
+                meditate: { title: 'Meditate', icon: '🧘', defaultWidth: 350, defaultHeight: 250, onOpen: w => this.setupMeditate(w) },
+                metronome: { title: 'Metronome', icon: '🎼', defaultWidth: 350, defaultHeight: 200, onOpen: w => this.setupMetronome(w) },
+                flip_coin: { title: 'Flip a Coin', icon: '🪙', defaultWidth: 300, defaultHeight: 250, onOpen: w => this.setupCoinFlip(w) },
+                spinner: { title: 'Spinner', icon: '🎰', defaultWidth: 350, defaultHeight: 300, onOpen: w => this.setupSpinner(w) }
+            };
+            if (defs[id]) return defs[id];
+            const storeApp = STORE_APPS.find(a => a.id === id);
+            const title = storeApp ? storeApp.name : id;
+            return { title, icon: '📦', defaultWidth: 600, defaultHeight: 400, onOpen: w => this.setupGenericApp(w, id) };
+        },
+
+        renderWindow(w) {
+            const ex = document.getElementById(w.id);
+            if (ex) ex.remove();
+            const el = document.createElement('div');
+            el.className = 'os-window';
+            el.id = w.id;
+            el.style.left = w.x + 'px';
+            el.style.top = w.y + 'px';
+            el.style.width = w.width + 'px';
+            el.style.height = w.height + 'px';
+            el.style.zIndex = w.zIndex;
+            if (w.maximized) el.classList.add('maximized');
+            el.innerHTML = `<div class="win-titlebar"><button class="win-btn close" data-action="close"></button><button class="win-btn minimize" data-action="minimize"></button><button class="win-btn maximize" data-action="maximize"></button><span class="win-title">${w.icon} ${w.title}</span></div><div class="win-content" id="content_${w.id}"></div>`;
+            document.body.appendChild(el);
+            el.querySelector('.win-btn.close').addEventListener('click', () => this.closeWindow(w.id));
+            el.querySelector('.win-btn.minimize').addEventListener('click', () => this.minimizeWindow(w.id));
+            el.querySelector('.win-btn.maximize').addEventListener('click', () => this.maximizeWindow(w.id));
+            let dragData = null;
+            el.querySelector('.win-titlebar').addEventListener('mousedown', (e) => {
+                if (e.target.classList.contains('win-btn') || w.maximized) return;
+                dragData = { sx: e.clientX, sy: e.clientY, sl: w.x, st: w.y, wid: w.id };
+                this.focusWindow(w.id);
+            });
+            document.addEventListener('mousemove', (e) => {
+                if (!dragData || dragData.wid !== w.id) return;
+                w.x = Math.max(-100, dragData.sl + (e.clientX - dragData.sx));
+                w.y = Math.max(0, dragData.st + (e.clientY - dragData.sy));
+                el.style.left = w.x + 'px';
+                el.style.top = w.y + 'px';
+            });
+            document.addEventListener('mouseup', () => { dragData = null; });
+        },
+
+        focusWindow(id) {
+            const w = this.windows.find(w => w.id === id);
+            if (!w) return;
+            w.zIndex = ++this.windowZIndex;
+            const el = document.getElementById(id);
+            if (el) el.style.zIndex = w.zIndex;
+            this.activeWindowId = id;
+            this.updateTaskbar();
+        },
+
+        minimizeWindow(id) {
+            const w = this.windows.find(w => w.id === id);
+            if (!w) return;
+            w.minimized = true;
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+            this.updateTaskbar();
+        },
+
+        restoreWindow(id) {
+            const w = this.windows.find(w => w.id === id);
+            if (!w) return;
+            w.minimized = false;
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'flex';
+            this.focusWindow(id);
+        },
+
+        maximizeWindow(id) {
+            const w = this.windows.find(w => w.id === id);
+            const el = document.getElementById(id);
+            if (!el) return;
+            w.maximized = !w.maximized;
+            if (w.maximized) el.classList.add('maximized');
+            else el.classList.remove('maximized');
+        },
+
+        closeWindow(id) {
+            const w = this.windows.find(w => w.id === id);
+            if (!w) return;
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.add('closing');
+                setTimeout(() => el.remove(), 250);
+            }
+            this.windows = this.windows.filter(w => w.id !== id);
+            this.updateTaskbar();
+        },
+
+        closeAllWindows() {
+            [...this.windows].forEach(w => this.closeWindow(w.id));
+        },
+
+        updateTaskbar() {
+            const c = document.getElementById('taskbarApps');
+            c.innerHTML = '';
+            this.windows.forEach(w => {
+                const b = document.createElement('button');
+                b.className = 'taskbar-item' + (w.id === this.activeWindowId ? ' active' : '');
+                b.innerHTML = `${w.icon} <span>${w.title}</span><div class="indicator"></div>`;
+                b.addEventListener('click', () => {
+                    if (w.minimized) this.restoreWindow(w.id);
+                    else this.minimizeWindow(w.id);
+                });
+                c.appendChild(b);
+            });
+        },
+
+        setupTaskbarClock() {
+            setInterval(() => this.updateLockClock(), 30000);
+            this.updateLockClock();
+        },
+
+        setupEventListeners() {
+            document.getElementById('startBtn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleStartMenu();
+            });
+            document.getElementById('qsToggle').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const q = document.getElementById('quickSettings');
+                q.classList.toggle('open');
+                document.getElementById('startMenu').classList.remove('open');
+            });
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#startMenu') && !e.target.closest('#startBtn'))
+                    document.getElementById('startMenu').classList.remove('open');
+                if (!e.target.closest('#quickSettings') && !e.target.closest('#qsToggle'))
+                    document.getElementById('quickSettings').classList.remove('open');
+                if (!e.target.closest('#contextMenu'))
+                    document.getElementById('contextMenu').classList.remove('open');
+            });
+            document.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                this.showContextMenu(e.clientX, e.clientY);
+            });
+        },
+
+        setupContextMenu() {
+            this.cm = [
+                { label: '🔄 Refresh', action: () => { this.renderDesktopIcons(); } },
+                { label: '🎨 Wallpaper', action: () => { this.wallpaperHue = Math.random() * 360; } },
+                { label: '⚙️ Settings', action: () => this.openApp('settings') },
+                { label: '🔒 Lock', action: () => this.lock() }
+            ];
+        },
+
+        showContextMenu(x, y) {
+            const m = document.getElementById('contextMenu');
+            m.innerHTML = '';
+            this.cm.forEach(i => {
+                const d = document.createElement('div');
+                d.className = 'ctx-item';
+                d.textContent = i.label;
+                d.addEventListener('click', () => {
+                    i.action();
+                    m.classList.remove('open');
+                });
+                m.appendChild(d);
+            });
+            m.style.left = Math.min(x, window.innerWidth - 200) + 'px';
+            m.style.top = Math.min(y, window.innerHeight - 250) + 'px';
+            m.classList.add('open');
+        },
+
+        showNotification(t, m) {
+            const c = document.getElementById('notificationCenter');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<strong>${t}</strong><br>${m}`;
+            c.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        },
+
+        toggleWiFi() {
+            this.wifiOn = !this.wifiOn;
+            this.showNotification('WiFi', this.wifiOn ? 'Connected' : 'Disconnected');
+        },
+
+        toggleBluetooth() {
+            this.bluetoothOn = !this.bluetoothOn;
+            this.showNotification('Bluetooth', this.bluetoothOn ? 'Enabled' : 'Disabled');
+        },
+
+        toggleDarkMode() {
+            this.darkMode = !this.darkMode;
+            document.body.style.filter = this.darkMode ? 'none' : 'brightness(1.1)';
+        },
+
+        toggleFocus() {
+            this.focusMode = !this.focusMode;
+            this.showNotification('Focus', this.focusMode ? 'ON' : 'OFF');
+        },
+
+        loadSettings() {
+            try {
+                const s = JSON.parse(localStorage.getItem('ns'));
+                if (s) {
+                    this.wallpaperHue = s.h || 260;
+                    this.darkMode = s.d !== false;
+                    this.installedStoreApps = s.a || [];
+                    this.userPIN = s.p || '1234';
+                    this.backgroundImage = s.bg || null;
+                    this.wallpaperType = s.wt || 'gradient';
+                }
+            } catch (e) {}
+        },
+
+        saveSettings() {
+            try {
+                localStorage.setItem('ns', JSON.stringify({
+                    h: this.wallpaperHue,
+                    d: this.darkMode,
+                    a: this.installedStoreApps,
+                    p: this.userPIN,
+                    bg: this.backgroundImage,
+                    wt: this.wallpaperType
+                }));
+            } catch (e) {}
+        },
+
+        installStoreApp(id) {
+            if (!this.installedStoreApps.includes(id)) {
+                this.installedStoreApps.push(id);
+                this.saveSettings();
+                this.renderDesktopIcons();
+                this.showNotification('Store', `${id} installed`);
+            }
+        },
+
+        uninstallStoreApp(id) {
+            this.installedStoreApps = this.installedStoreApps.filter(i => i !== id);
+            this.saveSettings();
+            this.renderDesktopIcons();
+            this.showNotification('Store', `${id} uninstalled`);
+        },
+
+        // ---- App definitions ----
+        setupBrowserApp(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            el.innerHTML = `<div style="display:flex;flex-direction:column;height:100%;gap:8px;"><div class="gcse-searchbox-only"></div><div class="gcse-searchresults-only" style="flex:1;overflow:auto;background:#fff;border-radius:8px;"></div></div>`;
+            if (!document.getElementById('gcs-script')) {
+                const s = document.createElement('script');
+                s.id = 'gcs-script';
+                s.src = 'https://cse.google.com/cse.js?cx=0608671dd81384e38';
+                s.async = true;
+                document.head.appendChild(s);
+            } else if (window.google && window.google.search && window.google.search.cse) {
+                setTimeout(() => { window.google.search.cse.element.render(); }, 200);
+            }
+        },
+
+        setupFilesApp(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            el.innerHTML = `<div style="display:flex;"><div style="width:150px;background:rgba(255,255,255,0.03);padding:10px;">📂 Quick Access</div><div style="flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">${Array(8).fill('<div style="padding:12px;background:rgba(255,255,255,0.04);border-radius:8px;">📄 File</div>').join('')}</div></div>`;
+        },
+
+        setupTerminalApp(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            el.innerHTML = `<div style="background:#0a0a14;border-radius:8px;padding:14px;height:100%;font-family:monospace;color:#a0ffa0;overflow-y:auto;" id="tb_${w.id}"><div>Nexura Terminal</div><div id="to_${w.id}"></div><div style="display:flex;"><span>$ </span><input id="ti_${w.id}" autofocus style="flex:1;background:transparent;border:none;color:#a0ffa0;outline:none;"></div></div>`;
+            const input = document.getElementById('ti_' + w.id);
+            const out = document.getElementById('to_' + w.id);
+            input.addEventListener('keydown', e => {
+                if (e.key === 'Enter') {
+                    const cmd = input.value.trim().toLowerCase();
+                    let res = '';
+                    if (cmd === 'help') res = 'help,clear,date,neofetch,open,install,uninstall,funfact,joke,quote,roll,flip,calc';
+                    else if (cmd === 'clear') out.innerHTML = '';
+                    else if (cmd === 'neofetch') res = 'Nexura OS v24.0';
+                    else if (cmd.startsWith('open ')) { this.openApp(cmd.slice(5)); res = 'Opening...'; }
+                    else if (cmd === 'roll') res = '🎲 ' + (Math.floor(Math.random() * 6) + 1);
+                    else if (cmd === 'flip') res = Math.random() > 0.5 ? '🪙 Heads' : '🪙 Tails';
+                    else if (cmd) res = 'Command not found: ' + cmd;
+                    if (res) out.innerHTML += `<div>${cmd}<br>${res}</div>`;
+                    input.value = '';
+                }
+            });
+        },
+
+        setupCalculatorApp(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            el.innerHTML = `<input id="cd_${w.id}" readonly style="width:100%;padding:14px;font-size:28px;text-align:right;background:rgba(255,255,255,0.05);border-radius:10px;color:#fff;"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">${['C','±','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','.','⌫','='].map(b => `<button style="padding:12px;background:rgba(255,255,255,0.06);color:#fff;border-radius:8px;">${b}</button>`).join('')}</div>`;
+            let d = { cur: '', prev: '', op: null };
+            window['c' + w.id] = d;
+            const disp = document.getElementById('cd_' + w.id);
+            el.querySelectorAll('button').forEach(b => {
+                b.addEventListener('click', () => {
+                    const t = b.textContent;
+                    if (t === 'C') { d.cur = ''; d.prev = ''; d.op = null; }
+                    else if (t === '⌫') { d.cur = d.cur.slice(0, -1); }
+                    else if (t === '±') { d.cur = d.cur.startsWith('-') ? d.cur.slice(1) : '-' + d.cur; }
+                    else if (t === '=') {
+                        if (d.op && d.prev) {
+                            const p = parseFloat(d.prev), c = parseFloat(d.cur);
+                            switch (d.op) {
+                                case '+': d.cur = (p + c).toString(); break;
+                                case '−': d.cur = (p - c).toString(); break;
+                                case '×': d.cur = (p * c).toString(); break;
+                                case '÷': d.cur = c !== 0 ? (p / c).toString() : 'Error'; break;
+                                case '%': d.cur = (p % c).toString(); break;
+                            }
+                            d.prev = ''; d.op = null;
+                        }
+                    } else if (['+','−','×','÷','%'].includes(t)) {
+                        d.prev = d.cur; d.op = t; d.cur = '';
+                    } else {
+                        d.cur += t;
+                    }
+                    disp.value = d.cur || '0';
+                });
+            });
+        },
+
+        setupSettingsApp(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            el.innerHTML = `<div style="display:flex;height:100%;"><div style="width:160px;background:rgba(255,255,255,0.03);padding:10px;" id="sn_${w.id}"></div><div style="flex:1;padding:10px;overflow-y:auto;" id="sp_${w.id}"></div></div>`;
+            const tabs = ['Appearance','Desktop','Taskbar','Background','Accounts'];
+            const nav = document.getElementById('sn_' + w.id);
+            tabs.forEach(t => {
+                const d = document.createElement('div');
+                d.textContent = t;
+                d.style.padding = '8px';
+                d.style.cursor = 'pointer';
+                d.addEventListener('click', () => this.renderSettingsTab(w.id, t.toLowerCase()));
+                nav.appendChild(d);
+            });
+            this.renderSettingsTab(w.id, 'appearance');
+        },
+
+        renderSettingsTab(wid, tab) {
+            const panel = document.getElementById('sp_' + wid);
+            if (!panel) return;
+            const sl = (l, k, min = 0, max = 100) =>
+                `<div><label>${l}: <span id="${k}v">${this.settingsStore[k] || 50}</span></label><input type="range" min="${min}" max="${max}" value="${this.settingsStore[k] || 50}" oninput="document.getElementById('${k}v').textContent=this.value;NexuraOS.settingsStore['${k}']=parseFloat(this.value);NexuraOS.saveSettings();NexuraOS.applySettings();"></div>`;
+            let h = '';
+            if (tab === 'appearance') {
+                h = '<h3>🎨 Appearance</h3>' + sl('Blur','blurAmount',0,30) + sl('Transparency','transparency',0,100) + sl('Border Radius','borderRadius',0,30) + sl('Shadow','shadowIntensity',0,50);
+            } else if (tab === 'desktop') {
+                h = '<h3>🖥️ Desktop</h3>' + sl('Icon Size','iconSize',32,96);
+            } else if (tab === 'taskbar') {
+                h = '<h3>📌 Taskbar</h3>' + sl('Transparency','taskbarTransparency',0,100);
+            } else if (tab === 'background') {
+                h = `<h3>🖼️ Background</h3><div class="wallpaper-steps"><strong>📥 How to set a custom wallpaper:</strong><ol><li>Click <strong>"Open Pexels 4K Wallpapers ↗"</strong> below to browse images.</li><li><strong>Choose</strong> a wallpaper you like and <strong>download</strong> it to your device (right‑click/long‑press and "Save image as…").</li><li>Click the <strong>"Choose File"</strong> button below and select the downloaded image.</li><li>Your wallpaper will be applied automatically! ✨</li></ol></div><p><strong>Browse 4K Wallpapers:</strong> <a href="https://www.pexels.com/search/4k%20wallpaper/" target="_blank" style="color:var(--accent2);">Open Pexels 4K Wallpapers ↗</a></p><p style="margin-top:10px;">Choose a preset:</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">${PRESET_BG.map((url, i) => `<img src="${url}" style="width:80px;height:50px;object-fit:cover;cursor:pointer;border:2px solid ${NexuraOS.backgroundImage === url ? 'var(--accent)' : 'transparent'};border-radius:6px;" onclick="NexuraOS.backgroundImage='${url}';NexuraOS.saveSettings();NexuraOS.applySettings();">`).join('')}</div><p>Or paste an image URL:</p><input type="text" placeholder="https://example.com/image.jpg" id="bg_url_${wid}" style="width:100%;padding:6px;background:rgba(255,255,255,0.05);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:6px;margin-bottom:8px;"><button onclick="NexuraOS.backgroundImage=document.getElementById('bg_url_${wid}').value;NexuraOS.saveSettings();NexuraOS.applySettings();" style="padding:6px 12px;background:var(--accent);color:#fff;border:none;border-radius:6px;">Apply URL</button><p style="margin-top:10px;">Or upload from your device:</p><input type="file" accept="image/*" onchange="const r=new FileReader();r.onload=e=>{NexuraOS.backgroundImage=e.target.result;NexuraOS.saveSettings();NexuraOS.applySettings();};r.readAsDataURL(this.files[0]);">${this.backgroundImage ? `<p style="margin-top:8px;"><button onclick="NexuraOS.backgroundImage=null;NexuraOS.saveSettings();NexuraOS.applySettings();" style="padding:4px 10px;background:rgba(255,70,70,0.3);color:#ff6b6b;border:1px solid rgba(255,70,70,0.5);border-radius:6px;">Remove Image</button></p>` : ''}<p style="margin-top:10px;">Wallpaper Type:</p><select onchange="NexuraOS.wallpaperType=this.value;NexuraOS.saveSettings();NexuraOS.applySettings();"><option value="gradient" ${this.wallpaperType === 'gradient' ? 'selected' : ''}>Gradient</option><option value="particles" ${this.wallpaperType === 'particles' ? 'selected' : ''}>Particles</option><option value="solid" ${this.wallpaperType === 'solid' ? 'selected' : ''}>Solid</option></select><br>Hue: <input type="range" min="0" max="360" value="${this.wallpaperHue}" oninput="NexuraOS.wallpaperHue=parseInt(this.value);NexuraOS.saveSettings();NexuraOS.applySettings();">`;
+            } else if (tab === 'accounts') {
+                h = `<h3>👤 Accounts</h3> <div> <label style="display:block; margin-bottom:4px;">Username</label> <input class="account-input" id="ac_user_${wid}" value="${this.username}" placeholder="Your name"> </div> <div> <label style="display:block; margin-bottom:4px;">Change PIN</label> <input class="account-input" type="password" id="ac_pin_${wid}" value="${this.userPIN}"> </div> <div class="account-toggle"> <input type="checkbox" id="ac_autolock_${wid}" ${this.autoLockEnabled ? 'checked' : ''}> <label for="ac_autolock_${wid}">Auto-lock after inactivity</label> </div> <div id="ac_timeout_wrap_${wid}" style="margin-bottom:12px; ${this.autoLockEnabled ? '' : 'display:none;'}"> <label>Lock timeout (minutes):</label> <input class="account-input" type="number" id="ac_timeout_${wid}" value="${Math.round(this.lockTimeout/60)}" min="1" max="120" style="width:100px; display:inline-block;"> </div> <div class="account-toggle"> <input type="checkbox" id="ac_lockscreen_${wid}" ${this.showLockScreenOnStart ? 'checked' : ''}> <label for="ac_lockscreen_${wid}">Show lock screen at startup</label> </div> <button class="account-save-btn" onclick="NexuraOS.saveAccountsSettings('${wid}')">Save All</button>`;
+            } else {
+                h = '<h3>Unknown Tab</h3>';
+            }
+            panel.innerHTML = h;
+            if (tab === 'accounts') {
+                const cb = document.getElementById('ac_autolock_' + wid);
+                const wrap = document.getElementById('ac_timeout_wrap_' + wid);
+                if (cb && wrap) {
+                    cb.addEventListener('change', function() {
+                        wrap.style.display = this.checked ? 'block' : 'none';
+                    });
+                }
+            }
+        },
+
+        saveAccountsSettings(wid) {
+            const userEl = document.getElementById('ac_user_' + wid);
+            const pinEl = document.getElementById('ac_pin_' + wid);
+            const autoLockEl = document.getElementById('ac_autolock_' + wid);
+            const timeoutEl = document.getElementById('ac_timeout_' + wid);
+            const lockScreenEl = document.getElementById('ac_lockscreen_' + wid);
+            if (userEl) this.username = userEl.value || 'User';
+            if (pinEl) this.userPIN = pinEl.value || '1234';
+            if (autoLockEl) this.autoLockEnabled = autoLockEl.checked;
+            if (timeoutEl) this.lockTimeout = Math.max(1, parseInt(timeoutEl.value) || 5) * 60;
+            if (lockScreenEl) this.showLockScreenOnStart = lockScreenEl.checked;
+            this.saveSettings();
+            this.showNotification('Accounts', 'Settings saved successfully!');
+            // Update lock screen greeting
+            if (document.getElementById('lockUserName')) {
+                document.getElementById('lockUserName').textContent = this.username;
+            }
+        },
+
+        setupNotesApp(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            el.innerHTML = `<textarea style="width:100%;height:100%;background:rgba(255,255,255,0.03);color:#fff;padding:12px;border-radius:8px;">Notes...</textarea>`;
+        },
+
+        setupMusicApp(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            el.innerHTML = `<iframe src="https://open.spotify.com/" width="100%" height="100%" style="border:0;border-radius:12px;"></iframe>`;
+        },
+
+        setupWeatherApp(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            el.innerHTML = `<div style="text-align:center;padding:30px;"><h2>🌤️ Weather</h2><p>☀️ Clear Sky • 22°C</p></div>`;
+        },
+
+        setupPaintApp(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            el.innerHTML = `<div style="display:flex;flex-direction:column;height:100%;gap:4px;"><div style="display:flex;gap:6px;"><input type="color" id="pc_${w.id}" value="#6c5ce7"><input type="range" id="ps_${w.id}" min="1" max="20" value="3"><button id="pcl_${w.id}">🗑️ Clear</button><button id="psv_${w.id}">💾 Save</button></div><canvas id="pcn_${w.id}" style="flex:1;background:#fff;border-radius:8px;"></canvas></div>`;
+            const c = document.getElementById('pcn_' + w.id);
+            const ctx = c.getContext('2d');
+            c.width = c.offsetWidth;
+            c.height = c.offsetHeight;
+            let p = false;
+            c.addEventListener('pointerdown', e => { p = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); });
+            c.addEventListener('pointerup', () => p = false);
+            c.addEventListener('pointermove', e => {
+                if (!p) return;
+                ctx.strokeStyle = document.getElementById('pc_' + w.id).value;
+                ctx.lineWidth = document.getElementById('ps_' + w.id).value;
+                ctx.lineCap = 'round';
+                ctx.lineTo(e.offsetX, e.offsetY);
+                ctx.stroke();
+            });
+            document.getElementById('pcl_' + w.id).addEventListener('click', () => ctx.clearRect(0, 0, c.width, c.height));
+            document.getElementById('psv_' + w.id).addEventListener('click', () => {
+                const a = document.createElement('a');
+                a.download = 'painting.png';
+                a.href = c.toDataURL();
+                a.click();
+            });
+        },
+
+        setupCodeEditorApp(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            el.innerHTML = `<textarea id="ce_${w.id}" style="flex:1;background:#0a0a14;color:#a0ffa0;font-family:monospace;padding:12px;border-radius:8px;">console.log('Hello!');</textarea><button id="cr_${w.id}" style="padding:8px 16px;background:var(--accent);color:#fff;border:none;border-radius:8px;">▶ Run</button><pre id="co_${w.id}" style="background:#111;color:#fff;padding:8px;"></pre>`;
+            document.getElementById('cr_' + w.id).addEventListener('click', () => {
+                try {
+                    const r = eval(document.getElementById('ce_' + w.id).value);
+                    document.getElementById('co_' + w.id).textContent = String(r);
+                } catch (e) {
+                    document.getElementById('co_' + w.id).textContent = 'Error: ' + e.message;
+                }
+            });
+        },
+
+        setupTicTacToe(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            el.innerHTML = `<h3 style="text-align:center;">🎮 Tic Tac Toe</h3><div id="ttt_board_${w.id}" style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;max-width:200px;margin:10px auto;"></div><p id="ttt_status_${w.id}" style="text-align:center;margin-top:10px;"></p><button id="ttt_reset_${w.id}" style="display:block;margin:10px auto;padding:6px 20px;">Restart</button>`;
+            let board = Array(9).fill('');
+            let turn = 'X';
+            let gameOver = false;
+            const status = document.getElementById('ttt_status_' + w.id);
+            const render = () => {
+                const bd = document.getElementById('ttt_board_' + w.id);
+                bd.innerHTML = '';
+                board.forEach((v, i) => {
+                    const cell = document.createElement('div');
+                    cell.style.cssText = 'aspect-ratio:1;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;border-radius:6px;';
+                    cell.textContent = v;
+                    cell.addEventListener('click', () => {
+                        if (gameOver || v) return;
+                        board[i] = turn;
+                        render();
+                        if (checkWin()) {
+                            status.textContent = turn + ' wins!';
+                            gameOver = true;
+                            return;
+                        }
+                        if (board.every(c => c)) {
+                            status.textContent = 'Draw!';
+                            gameOver = true;
+                            return;
+                        }
+                        turn = turn === 'X' ? 'O' : 'X';
+                        status.textContent = turn + "'s turn";
+                    });
+                    bd.appendChild(cell);
+                });
+            };
+            const checkWin = () => {
+                const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+                return wins.some(w => board[w[0]] && board[w[0]] === board[w[1]] && board[w[0]] === board[w[2]]);
+            };
+            render();
+            status.textContent = "X's turn";
+            document.getElementById('ttt_reset_' + w.id).addEventListener('click', () => {
+                board = Array(9).fill('');
+                turn = 'X';
+                gameOver = false;
+                render();
+                status.textContent = "X's turn";
+            });
+        },
+
+        setupColorPicker(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            el.innerHTML = `<div style="text-align:center;"><input type="color" id="cp_${w.id}" value="#6c5ce7" style="width:100%;height:120px;border:none;cursor:pointer;"><p style="margin-top:10px;">Selected: <span id="cp_val_${w.id}">#6c5ce7</span></p></div>`;
+            document.getElementById('cp_' + w.id).addEventListener('input', e => {
+                document.getElementById('cp_val_' + w.id).textContent = e.target.value;
+            });
+        },
+
+        setupTuner(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            el.innerHTML = `<div style="text-align:center;padding:20px;"><h3>🎵 Tuner</h3><p id="tuner_note_${w.id}">--</p><button id="tuner_start_${w.id}" style="padding:6px 16px;">Start Listening</button></div>`;
+        },
+
+        setupDice(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            el.innerHTML = `<div style="text-align:center;padding:20px;"><h2>🎲</h2><div id="dice_result_${w.id}" style="font-size:80px;">1</div><button id="dice_roll_${w.id}" style="padding:8px 20px;">Roll</button></div>`;
+            document.getElementById('dice_roll_' + w.id).addEventListener('click', () => {
+                document.getElementById('dice_result_' + w.id).textContent = Math.floor(Math.random() * 6) + 1;
+            });
+        },
+
+        setupMeditate(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            el.innerHTML = `<div style="text-align:center;padding:20px;"><h2>🧘 Meditate</h2><p>Breathe in... breathe out...</p><div id="meditate_timer_${w.id}" style="font-size:30px;">2:00</div><button id="meditate_start_${w.id}" style="padding:8px 16px;">Start</button></div>`;
+            let timer = null;
+            let sec = 120;
+            document.getElementById('meditate_start_' + w.id).addEventListener('click', () => {
+                if (timer) return;
+                timer = setInterval(() => {
+                    sec--;
+                    document.getElementById('meditate_timer_' + w.id).textContent = Math.floor(sec/60) + ':' + (sec%60).toString().padStart(2,'0');
+                    if (sec <= 0) {
+                        clearInterval(timer);
+                        timer = null;
+                        sec = 120;
+                        document.getElementById('meditate_timer_' + w.id).textContent = '2:00';
+                    }
+                }, 1000);
+            });
+        },
+
+        setupMetronome(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            el.innerHTML = `<div style="text-align:center;padding:20px;"><h2>🎼 Metronome</h2><p>BPM: <span id="metro_bpm_${w.id}">120</span></p><input type="range" min="40" max="200" value="120" id="metro_slider_${w.id}" style="width:200px;"><br><button id="metro_toggle_${w.id}" style="padding:8px 20px;margin-top:10px;">Start</button></div>`;
+            let playing = false;
+            let interval = null;
+            const beep = () => {
+                const ctx = new AudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.frequency.value = 800;
+                gain.gain.value = 0.1;
+                osc.start();
+                osc.stop(ctx.currentTime + 0.1);
+            };
+            document.getElementById('metro_slider_' + w.id).addEventListener('input', e => {
+                document.getElementById('metro_bpm_' + w.id).textContent = e.target.value;
+                if (playing) {
+                    clearInterval(interval);
+                    interval = setInterval(beep, 60000 / e.target.value);
+                }
+            });
+            document.getElementById('metro_toggle_' + w.id).addEventListener('click', () => {
+                playing = !playing;
+                const btn = document.getElementById('metro_toggle_' + w.id);
+                btn.textContent = playing ? 'Stop' : 'Start';
+                if (playing) {
+                    interval = setInterval(beep, 60000 / parseInt(document.getElementById('metro_slider_' + w.id).value));
+                } else {
+                    clearInterval(interval);
+                }
+            });
+        },
+
+        setupCoinFlip(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            el.innerHTML = `<div style="text-align:center;padding:20px;"><div id="coin_result_${w.id}" style="font-size:80px;">🪙</div><button id="coin_flip_${w.id}" style="padding:8px 20px;">Flip</button></div>`;
+            document.getElementById('coin_flip_' + w.id).addEventListener('click', () => {
+                const val = Math.random() > 0.5 ? 'Heads' : 'Tails';
+                document.getElementById('coin_result_' + w.id).textContent = val === 'Heads' ? '🪙 Heads' : '🪙 Tails';
+            });
+        },
+
+        setupSpinner(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            const options = ['🍕','🍔','🌮','🍣','🍩','🍪','🍿','🍦'];
+            el.innerHTML = `<div style="text-align:center;padding:20px;"><h2>🎰 Spinner</h2><div id="spinner_result_${w.id}" style="font-size:60px;">${options[0]}</div><button id="spinner_spin_${w.id}" style="padding:8px 20px;">Spin</button></div>`;
+            document.getElementById('spinner_spin_' + w.id).addEventListener('click', () => {
+                let i = 0;
+                const interval = setInterval(() => {
+                    document.getElementById('spinner_result_' + w.id).textContent = options[i % options.length];
+                    i++;
+                }, 80);
+                setTimeout(() => {
+                    clearInterval(interval);
+                    document.getElementById('spinner_result_' + w.id).textContent = options[Math.floor(Math.random() * options.length)];
+                }, 1500);
+            });
+        },
+
+        setupStoreApp(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            const apps = STORE_APPS;
+            let tab = 'all';
+            el.innerHTML = `<h3>🛍️ App Store</h3><div style="display:flex;gap:6px;margin-bottom:8px;"><button class="stb active" data-t="all">All</button><button class="stb" data-t="installed">Installed</button><button class="stb" data-t="uninstalled">Uninstalled</button></div><input id="ss_${w.id}" placeholder="Search..." style="width:100%;padding:6px;margin-bottom:8px;background:rgba(255,255,255,0.05);color:#fff;border-radius:6px;"><div id="sg_${w.id}" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;max-height:400px;overflow-y:auto;"></div>`;
+            const grid = document.getElementById('sg_' + w.id);
+            const search = document.getElementById('ss_' + w.id);
+            const render = (f = '') => {
+                const fl = apps.filter(a => {
+                    const ms = a.name.toLowerCase().includes(f.toLowerCase());
+                    const inst = this.installedStoreApps.includes(a.id);
+                    if (tab === 'installed') return ms && inst;
+                    if (tab === 'uninstalled') return ms && !inst;
+                    return ms;
+                });
+                grid.innerHTML = fl.map(a => {
+                    const inst = this.installedStoreApps.includes(a.id);
+                    const isWebApp = a.url && !a.url.startsWith('#');
+                    return `<div style="padding:12px;background:rgba(255,255,255,0.04);border-radius:10px;text-align:center;cursor:${isWebApp ? 'pointer' : 'default'};" ${isWebApp ? `onclick="window.open('${a.url}','_blank')"` : ''}><div style="font-size:28px;">${a.icon}</div><b>${a.name}</b><br>${isWebApp ? `<button class="sib" data-id="${a.id}" style="padding:6px 12px;border-radius:6px;background:${inst ? 'rgba(255,70,70,0.3)' : 'rgba(108,92,231,0.3)'};color:#fff;border:none;margin-top:6px;">${inst ? 'Uninstall' : 'Install'}</button><br><a href="${a.url}" target="_blank" style="color:var(--accent2);font-size:11px;">Open ↗</a>` : `<small style="color:#888;">Built‑in app</small>`}</div>`;
+                }).join('');
+            };
+            render();
+            search.addEventListener('input', e => render(e.target.value));
+            el.querySelectorAll('.stb').forEach(b => {
+                b.addEventListener('click', () => {
+                    tab = b.dataset.t;
+                    el.querySelectorAll('.stb').forEach(x => x.classList.remove('active'));
+                    b.classList.add('active');
+                    render(search.value);
+                });
+            });
+            grid.addEventListener('click', e => {
+                if (e.target.classList.contains('sib')) {
+                    e.stopPropagation();
+                    const id = e.target.dataset.id;
+                    if (this.installedStoreApps.includes(id)) this.uninstallStoreApp(id);
+                    else this.installStoreApp(id);
+                    render(search.value);
+                }
+            });
+        },
+
+        setupGenericApp(w, id) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            const storeApp = STORE_APPS.find(a => a.id === id);
+            const name = storeApp ? storeApp.name : id;
+            el.innerHTML = `<h3>${name}</h3><p>Installed from Store.</p>`;
+        },
+
+        setupGamesApp(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            el.innerHTML = `<h3>🎮 Game Launcher</h3><div style="display:flex;gap:6px;margin-bottom:8px;"><button data-g="snake">🐍 Snake</button><button data-g="pong">🏓 Pong</button></div><div id="ga_${w.id}"></div>`;
+            el.querySelectorAll('button[data-g]').forEach(b => {
+                b.addEventListener('click', () => {
+                    const g = b.dataset.g;
+                    if (this.activeGames[w.id]) {
+                        this.activeGames[w.id].cleanup();
+                        delete this.activeGames[w.id];
+                    }
+                    document.getElementById('ga_' + w.id).innerHTML = '';
+                    if (g === 'snake') this.launchSnake(w.id);
+                    else if (g === 'pong') this.launchPong(w.id);
+                });
+            });
+        },
+
+        launchSnake(wid) {
+            const a = document.getElementById('ga_' + wid);
+            a.innerHTML = `<div><span>🐍 Score: <span id="ss_${wid}">0</span></span><button id="rs_${wid}">🔄 Restart</button></div><canvas id="sc_${wid}" width="400" height="250" style="background:#0a0a14;"></canvas>`;
+            const c = document.getElementById('sc_' + wid);
+            const ctx = c.getContext('2d');
+            const ss = document.getElementById('ss_' + wid);
+            let snake = [{x:10,y:10}];
+            let food = {x:15,y:15};
+            let dir = {x:1,y:0};
+            let score = 0;
+            let go = false;
+            let lt = 0;
+            const loop = (ts) => {
+                if (go) {
+                    ctx.fillStyle = '#f55';
+                    ctx.fillText('Game Over! '+score, 120, 125);
+                    return;
+                }
+                if (ts - lt < 120) { requestAnimationFrame(loop); return; }
+                lt = ts;
+                const h = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+                if (h.x < 0 || h.x >= 40 || h.y < 0 || h.y >= 25 || snake.some(s => s.x === h.x && s.y === h.y)) {
+                    go = true;
+                    requestAnimationFrame(loop);
+                    return;
+                }
+                snake.unshift(h);
+                if (h.x === food.x && h.y === food.y) {
+                    score++;
+                    ss.textContent = score;
+                    food = { x: Math.floor(Math.random() * 40), y: Math.floor(Math.random() * 25) };
+                } else {
+                    snake.pop();
+                }
+                ctx.fillStyle = '#0a0a14';
+                ctx.fillRect(0, 0, 400, 250);
+                ctx.fillStyle = '#afa';
+                snake.forEach(s => ctx.fillRect(s.x*10, s.y*10, 9, 9));
+                ctx.fillStyle = '#f8a';
+                ctx.fillRect(food.x*10, food.y*10, 9, 9);
+                requestAnimationFrame(loop);
+            };
+            requestAnimationFrame(loop);
+            const kh = (e) => {
+                if (e.key === 'ArrowUp' && dir.y === 0) dir = {x:0, y:-1};
+                if (e.key === 'ArrowDown' && dir.y === 0) dir = {x:0, y:1};
+                if (e.key === 'ArrowLeft' && dir.x === 0) dir = {x:-1, y:0};
+                if (e.key === 'ArrowRight' && dir.x === 0) dir = {x:1, y:0};
+            };
+            document.addEventListener('keydown', kh);
+            document.getElementById('rs_' + wid).addEventListener('click', () => {
+                document.removeEventListener('keydown', kh);
+                this.launchSnake(wid);
+            });
+            this.activeGames[wid] = { cleanup: () => document.removeEventListener('keydown', kh) };
+        },
+
+        launchPong(wid) {
+            const a = document.getElementById('ga_' + wid);
+            a.innerHTML = `<div><span>🏓 Score: <span id="ps_${wid}">0</span></span><button id="rp_${wid}">🔄 Restart</button></div><canvas id="pc_${wid}" width="400" height="250" style="background:#0a0a14;"></canvas>`;
+            const c = document.getElementById('pc_' + wid);
+            const ctx = c.getContext('2d');
+            const ss = document.getElementById('ps_' + wid);
+            let py = 90;
+            let ball = {x:200, y:125, vx:4, vy:3};
+            let ay = 90;
+            let score = 0;
+            let go = false;
+            const loop = () => {
+                if (go) {
+                    ctx.fillStyle = '#f55';
+                    ctx.fillText('Game Over! '+score, 140, 125);
+                    return;
+                }
+                ball.x += ball.vx;
+                ball.y += ball.vy;
+                if (ball.y <= 0 || ball.y >= 245) ball.vy *= -1;
+                if (ball.x <= 20 && ball.y > py && ball.y < py + 60) {
+                    ball.vx *= -1;
+                    score++;
+                    ss.textContent = score;
+                }
+                if (ball.x >= 385 && ball.y > ay && ball.y < ay + 60) ball.vx *= -1;
+                if (ball.x < 0 || ball.x > 400) {
+                    go = true;
+                    requestAnimationFrame(loop);
+                    return;
+                }
+                ay += (ball.y - (ay + 30)) * 0.1;
+                ctx.fillStyle = '#0a0a14';
+                ctx.fillRect(0, 0, 400, 250);
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(10, py, 8, 60);
+                ctx.fillRect(385, ay, 8, 60);
+                ctx.fillStyle = '#a9f';
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, 6, 0, Math.PI * 2);
+                ctx.fill();
+                requestAnimationFrame(loop);
+            };
+            requestAnimationFrame(loop);
+            const kh = (e) => {
+                if (e.key === 'ArrowUp') py = Math.max(0, py - 15);
+                if (e.key === 'ArrowDown') py = Math.min(190, py + 15);
+            };
+            document.addEventListener('keydown', kh);
+            document.getElementById('rp_' + wid).addEventListener('click', () => {
+                document.removeEventListener('keydown', kh);
+                this.launchPong(wid);
+            });
+            this.activeGames[wid] = { cleanup: () => { document.removeEventListener('keydown', kh); } };
+        }
+    };
+
+    window.NexuraOS = NexuraOS;
+    document.addEventListener('DOMContentLoaded', () => {
+        NexuraOS.init();
+        document.getElementById('desktop').style.display = 'none';
+    });
 })();
 </script>
 </body>
