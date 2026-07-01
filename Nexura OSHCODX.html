@@ -126,6 +126,97 @@
         ::-webkit-scrollbar { width:5px; height:5px; }
         ::-webkit-scrollbar-track { background:transparent; }
         ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.2); border-radius:10px; }
+
+        /* NEW: Styles for QuietQuest, Aura Lab Links, and AI Notes windows */
+        .quietquest-iframe {
+            width: 100%;
+            height: 100%;
+            min-height: 320px;
+            border: 0;
+            border-radius: 12px;
+            background: rgba(0,0,0,0.3);
+        }
+        .auralab-link-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .auralab-link-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text);
+            font-size: 13px;
+            transition: var(--transition);
+        }
+        .auralab-link-item:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--accent2);
+            transform: translateX(3px);
+        }
+        .auralab-link-icon {
+            font-size: 20px;
+            width: 32px;
+            text-align: center;
+        }
+        .ai-notes-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            height: 100%;
+        }
+        .ai-notes-input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            font-family: var(--font);
+        }
+        .ai-notes-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(108,92,231,0.25);
+        }
+        .ai-notes-btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            align-self: flex-start;
+        }
+        .ai-notes-btn:hover {
+            filter: brightness(1.15);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(108,92,231,0.4);
+        }
+        .ai-notes-output {
+            flex: 1;
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(0,0,0,0.25);
+            color: #d0d0e8;
+            font-size: 13px;
+            font-family: var(--font);
+            resize: none;
+            outline: none;
+            line-height: 1.6;
+            min-height: 150px;
+        }
     </style>
 </head>
 <body>
@@ -243,7 +334,7 @@ function parseApps() {
         windows: [],
         windowZIndex: 100,
         activeWindowId: null,
-        pinnedApps: ['browser','files','terminal','calculator','settings','notes','music','paint','codeeditor','weather','store','games'],
+        pinnedApps: ['browser','files','terminal','calculator','settings','notes','music','paint','codeeditor','weather','store','games','quietquest','auralab_links','ai_notes'],
         wifiOn: true,
         bluetoothOn: true,
         darkMode: true,
@@ -266,7 +357,6 @@ function parseApps() {
         activeGames: {},
         userPIN: '1234',
         history: [],
-        // added missing properties
         username: 'User',
         autoLockEnabled: false,
         lockTimeout: 300,
@@ -497,7 +587,13 @@ function parseApps() {
                 { id: 'games', name: 'Games', icon: '🎮', color: '#e74c3c' },
                 { id: 'paint', name: 'Nexura Paint', icon: '🎨', color: '#fd79a8' },
                 { id: 'codeeditor', name: 'Code Editor', icon: '💻', color: '#6c5ce7' },
-                { id: 'weather', name: 'Weather', icon: '🌤️', color: '#74b9ff' }
+                { id: 'weather', name: 'Weather', icon: '🌤️', color: '#74b9ff' },
+                // NEW: QuietQuest window icon
+                { id: 'quietquest', name: 'Calm Focus – QuietQuest', icon: '🧘', color: '#4ecdc4' },
+                // NEW: Aura Lab Links window icon
+                { id: 'auralab_links', name: 'Aura Lab Links', icon: '🔗', color: '#ff6b6b' },
+                // NEW: AI Notes (Simulated) window icon
+                { id: 'ai_notes', name: 'AI Notes (Simulated)', icon: '🤖', color: '#a29bfe' }
             ];
         },
 
@@ -604,7 +700,13 @@ function parseApps() {
                 meditate: { title: 'Meditate', icon: '🧘', defaultWidth: 350, defaultHeight: 250, onOpen: w => this.setupMeditate(w) },
                 metronome: { title: 'Metronome', icon: '🎼', defaultWidth: 350, defaultHeight: 200, onOpen: w => this.setupMetronome(w) },
                 flip_coin: { title: 'Flip a Coin', icon: '🪙', defaultWidth: 300, defaultHeight: 250, onOpen: w => this.setupCoinFlip(w) },
-                spinner: { title: 'Spinner', icon: '🎰', defaultWidth: 350, defaultHeight: 300, onOpen: w => this.setupSpinner(w) }
+                spinner: { title: 'Spinner', icon: '🎰', defaultWidth: 350, defaultHeight: 300, onOpen: w => this.setupSpinner(w) },
+                // NEW: QuietQuest window definition
+                quietquest: { title: 'Calm Focus – QuietQuest', icon: '🧘', defaultWidth: 800, defaultHeight: 520, onOpen: w => this.setupQuietQuestWindow(w) },
+                // NEW: Aura Lab Links window definition
+                auralab_links: { title: 'Aura Lab Links', icon: '🔗', defaultWidth: 480, defaultHeight: 460, onOpen: w => this.setupAuraLabLinksWindow(w) },
+                // NEW: AI Notes (Simulated) window definition
+                ai_notes: { title: 'AI Notes (Simulated)', icon: '🤖', defaultWidth: 520, defaultHeight: 480, onOpen: w => this.setupAINotesWindow(w) }
             };
             if (defs[id]) return defs[id];
             const storeApp = STORE_APPS.find(a => a.id === id);
@@ -983,7 +1085,6 @@ function parseApps() {
             if (lockScreenEl) this.showLockScreenOnStart = lockScreenEl.checked;
             this.saveSettings();
             this.showNotification('Accounts', 'Settings saved successfully!');
-            // Update lock screen greeting
             if (document.getElementById('lockUserName')) {
                 document.getElementById('lockUserName').textContent = this.username;
             }
@@ -1388,6 +1489,147 @@ function parseApps() {
                 this.launchPong(wid);
             });
             this.activeGames[wid] = { cleanup: () => { document.removeEventListener('keydown', kh); } };
+        },
+
+        // ============ NEW: QuietQuest Window ============
+        setupQuietQuestWindow(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            el.innerHTML = `
+                <div style="display:flex;flex-direction:column;height:100%;gap:8px;">
+                    <p style="font-size:13px;color:var(--text2);text-align:center;margin-bottom:4px;">
+                        🧘 Calm Focus – QuietQuest YouTube Playlists
+                    </p>
+                    <iframe
+                        src="https://www.youtube.com/@QuietQuest/playlists"
+                        class="quietquest-iframe"
+                        allowfullscreen
+                        loading="lazy"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        title="QuietQuest YouTube Playlists">
+                    </iframe>
+                    <p style="font-size:10px;color:var(--text2);text-align:center;margin-top:2px;">
+                        Curated playlists for focus, relaxation, and deep work.
+                    </p>
+                </div>`;
+        },
+
+        // ============ NEW: Aura Lab Links Window ============
+        setupAuraLabLinksWindow(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            const links = [
+                { label: 'Aura Lab: Cares & Laughs 2', icon: '❤️', url: 'https://codepen.io/Kavyant-Kumar/pen/dPOXwmY' },
+                { label: 'Aura Lab: Cares & Laughs 1', icon: '💛', url: 'https://codepen.io/Kavyant-Kumar/pen/dPGJPKj' },
+                { label: 'Instagram', icon: '📸', url: 'https://www.instagram.com/kavyanthub/' },
+                { label: 'Facebook', icon: '👥', url: 'https://www.facebook.com/profile.php?id=61586003535719' },
+                { label: 'GitHub', icon: '🐙', url: 'https://github.com/Kiik913' },
+                { label: 'Aura Lab Server (Discord)', icon: '🎮', url: 'https://discord.com/channels/1505857480503197696/1505857672597999736' }
+            ];
+            el.innerHTML = `
+                <div style="display:flex;flex-direction:column;height:100%;gap:8px;">
+                    <p style="font-size:13px;color:var(--text2);text-align:center;margin-bottom:6px;">
+                        🔗 Official Aura Lab & Creator Links
+                    </p>
+                    <div class="auralab-link-list">
+                        ${links.map(l => `
+                            <a href="${l.url}" target="_blank" rel="noopener" class="auralab-link-item">
+                                <span class="auralab-link-icon">${l.icon}</span>
+                                <span style="flex:1;">${l.label}</span>
+                                <span style="font-size:11px;color:var(--text2);">↗</span>
+                            </a>
+                        `).join('')}
+                    </div>
+                    <p style="font-size:10px;color:var(--text2);text-align:center;margin-top:4px;">
+                        © Cares & Laughs – Fun Lab • All links open in a new tab
+                    </p>
+                </div>`;
+        },
+
+        // ============ NEW: AI Notes (Simulated) Window ============
+        setupAINotesWindow(w) {
+            const el = document.getElementById('content_' + w.id);
+            if (!el) return;
+            el.innerHTML = `
+                <div class="ai-notes-form">
+                    <p style="font-size:13px;color:var(--text2);text-align:center;">
+                        🤖 Simulated AI Notes – Study Helper
+                    </p>
+                    <label style="font-size:11px;color:var(--text2);">Video title or topic</label>
+                    <input
+                        type="text"
+                        id="ai_input_${w.id}"
+                        class="ai-notes-input"
+                        placeholder="e.g. Deep Focus Music, Quantum Physics intro, or Coding focus routine..."
+                    />
+                    <button class="ai-notes-btn" id="ai_btn_${w.id}">
+                        ✨ Generate notes (placeholder)
+                    </button>
+                    <label style="font-size:11px;color:var(--text2);">Generated notes</label>
+                    <textarea
+                        id="ai_output_${w.id}"
+                        class="ai-notes-output"
+                        readonly
+                        placeholder="Your AI-style notes will appear here..."></textarea>
+                </div>`;
+
+            const generateNotes = (title) => {
+                const t = title.toLowerCase().trim();
+                if (!t) return 'Please enter a video title or topic to generate notes.';
+
+                // Simulate AI-style notes based on keywords in the title
+                let mainIdea = '';
+                let useCases = '';
+                let routine = '';
+                let tips = '';
+
+                if (t.includes('focus') || t.includes('concentrat') || t.includes('deep work')) {
+                    mainIdea = 'This content helps you achieve a state of deep, uninterrupted focus for studying or creative work.';
+                    useCases = '• Preparing for exams (JEE, NEET, board exams)\n• Coding sprints and project deep-dives\n• Writing, designing, or any creative flow state\n• Reading complex material that requires full attention';
+                    routine = '1. Set a 25–45 minute focus block (Pomodoro style)\n2. Play the focus audio at moderate volume\n3. Remove phone notifications and external distractions\n4. Take a 5-minute break between blocks\n5. Repeat for 2–4 cycles for maximum productivity';
+                    tips = '💡 Tip: Pair this with noise-cancelling headphones for best results.';
+                } else if (t.includes('relax') || t.includes('calm') || t.includes('sleep') || t.includes('meditat')) {
+                    mainIdea = 'This content is designed to help you unwind, reduce stress, and transition into a restful state.';
+                    useCases = '• Pre-sleep wind-down routine\n• Stress relief after long study sessions\n• Background ambiance for gentle yoga or stretching\n• Mindfulness and meditation practice';
+                    routine = '1. Find a comfortable position (lying down or seated)\n2. Close your eyes and breathe deeply for 2 minutes\n3. Let the audio guide you into a relaxed state\n4. Stay for at least 10–15 minutes\n5. Gently transition back to activity or sleep';
+                    tips = '💡 Tip: Use this before bed to improve sleep quality and mental recovery.';
+                } else if (t.includes('study') || t.includes('learn') || t.includes('physics') || t.includes('math') || t.includes('chemistry') || t.includes('jee') || t.includes('exam')) {
+                    mainIdea = 'This content supports effective learning and retention for academic subjects and competitive exams.';
+                    useCases = '• Active recall and spaced repetition sessions\n• Background focus while solving practice problems\n• Creating a consistent study atmosphere\n• Group study sessions (shared focus environment)';
+                    routine = '1. Review key concepts for 10 minutes before starting\n2. Play the audio and begin focused problem-solving\n3. Use the Feynman technique: explain concepts out loud\n4. Take structured notes during breaks\n5. Review errors and weak areas after the session';
+                    tips = '💡 Tip: Combine with handwritten notes for better memory retention.';
+                } else if (t.includes('code') || t.includes('programming') || t.includes('developer') || t.includes('software')) {
+                    mainIdea = 'This content provides an optimal audio environment for coding, debugging, and software development work.';
+                    useCases = '• Feature development and coding sprints\n• Debugging complex issues (sustained focus)\n• Learning new programming languages or frameworks\n• Code reviews and documentation writing';
+                    routine = '1. Define your coding goal for the session\n2. Start the audio and open your IDE/editor\n3. Work in 45-minute focused blocks\n4. Commit code or save progress at each break\n5. Review what you built at the end of the session';
+                    tips = '💡 Tip: Use a second monitor for documentation/reference to stay in flow.';
+                } else {
+                    mainIdea = `This content explores the topic of "${title}" and provides a structured approach to understanding and applying the key concepts.`;
+                    useCases = '• Self-paced learning and exploration\n• Supplementing formal education or courses\n• Building foundational knowledge in this area\n• Practical application of core principles';
+                    routine = '1. Preview the topic: skim headings and key points\n2. Engage with the content actively (take notes)\n3. Pause and summarize each major section\n4. Create a mind map or summary after the session\n5. Review your notes within 24 hours for better retention';
+                    tips = '💡 Tip: Teach what you learned to someone else – it reinforces understanding.';
+                }
+
+                return `📌 Main Idea:\n${mainIdea}\n\n📋 Use Cases:\n${useCases}\n\n🕐 Recommended Routine:\n${routine}\n\n${tips}\n\n━━━━━━━━━━━━━━━━━━━━\n📝 Generated on: ${new Date().toLocaleString()}\n🔹 Source: Nexura OS Simulated AI Notes\n🔹 This is a placeholder – no external AI API is used.`;
+            };
+
+            document.getElementById('ai_btn_' + w.id).addEventListener('click', () => {
+                const input = document.getElementById('ai_input_' + w.id);
+                const output = document.getElementById('ai_output_' + w.id);
+                const title = input.value.trim();
+                output.value = 'Generating... ✨';
+                // Simulate a short "thinking" delay for realism
+                setTimeout(() => {
+                    output.value = generateNotes(title);
+                }, 600 + Math.random() * 800);
+            });
+
+            // Allow Enter key to trigger generation
+            document.getElementById('ai_input_' + w.id).addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('ai_btn_' + w.id).click();
+                }
+            });
         }
     };
 
