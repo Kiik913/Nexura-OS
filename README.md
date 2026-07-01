@@ -35,7 +35,7 @@ Every piece of the interface – the glass‑morphism windows, the blur effects,
 - **Weather** – Static weather display.
 - **App Store** – Dozens of apps, each with an icon, a name, a clickable “Open ↗” link (opens in new tab), and an Install/Uninstall button. Pre‑loaded with Google apps, Workspace tools, AI chat services, creative suites, modding tools, and much more.
 - **Game Launcher** – Playable Snake and Pong games.
-
+-And more 
 ### 🎨 Personalization
 - Adjustable **blur**, **transparency**, **border radius**, **shadow intensity**, **icon size**, **taskbar transparency**, and **auto‑hide** – all changes apply instantly.
 - **Background customization** – choose between gradient, particles, solid colour, or upload an image/URL.
